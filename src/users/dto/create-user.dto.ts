@@ -37,6 +37,11 @@ export class CreateUserDto {
     @IsInt()
     role_id?: number;
 
+    @ApiPropertyOptional({ example: 1, description: 'ID of the assigned plant (references plants.id)' })
+    @IsOptional()
+    @IsInt()
+    plant_id?: number;
+
     @ApiPropertyOptional({ enum: UserStatus, default: UserStatus.ACTIVE, description: 'Initial account status' })
     @IsOptional()
     @IsEnum(UserStatus)

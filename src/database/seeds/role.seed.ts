@@ -6,11 +6,11 @@ import { UserRole } from '../../users/entities/user-role.entity';
 dotenv.config();
 
 const roles = [
-    'Plant Operator',
-    'QC Inspector',
-    'Plant Supervisor',
-    'IT Admin',
-    'Central Auditor',
+    { role: 'Plant Operator', identifier: 'ROLE_PLANT_OPERATOR' },
+    { role: 'QC Inspector', identifier: 'ROLE_QC_INSPECTOR' },
+    { role: 'Plant Supervisor', identifier: 'ROLE_PLANT_SUPERVISOR' },
+    { role: 'IT Admin', identifier: 'ROLE_IT_ADMIN' },
+    { role: 'Central Auditor', identifier: 'ROLE_CENTRAL_AUDITOR' },
 ];
 
 async function seed() {
@@ -28,15 +28,15 @@ async function seed() {
     await dataSource.initialize();
     const repo = dataSource.getRepository(UserRole);
 
-    for (const roleName of roles) {
-        const exists = await repo.findOne({ where: { role: roleName } });
+    for (const roleData of roles) {
+        const exists = await repo.findOne({ where: { role: roleData.role } });
         if (exists) {
-            console.log(`Skipped (already exists): ${roleName}`);
+            console.log(`Skipped (already exists): ${roleData.role}`);
             continue;
         }
-        const entity = repo.create({ role: roleName });
+        const entity = repo.create(roleData);
         await repo.save(entity);
-        console.log(`Seeded: ${roleName}`);
+        console.log(`Seeded: ${roleData.role} (${roleData.identifier})`);
     }
 
     await dataSource.destroy();

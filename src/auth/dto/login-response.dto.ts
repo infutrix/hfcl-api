@@ -17,6 +17,12 @@ export class UserProfileDto {
     @ApiProperty({ example: 1, nullable: true })
     role_id: number;
 
+    @ApiProperty({ example: 'IT Admin', nullable: true })
+    role_name: string;
+
+    @ApiProperty({ example: 'ROLE_IT_ADMIN', nullable: true })
+    role_identifier: string;
+
     @ApiProperty({ enum: UserStatus, example: UserStatus.ACTIVE })
     status: UserStatus;
 
@@ -30,9 +36,6 @@ export class UserProfileDto {
 export class LoginResponseDto {
     @ApiProperty({ example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...', description: 'JWT Bearer token – include as Authorization: Bearer <token>' })
     access_token: string;
-
-    @ApiProperty({ example: '7d', description: 'Token expiry duration' })
-    expires_in: string;
 
     @ApiProperty({ type: UserProfileDto })
     user: UserProfileDto;

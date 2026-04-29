@@ -18,6 +18,10 @@ export class UserRole {
     @Column({ type: 'varchar', length: 100, unique: true })
     role: string;
 
+    @ApiProperty({ example: 'ROLE_ADMIN', description: 'Unique machine-readable identifier for the role (e.g. ROLE_IT_ADMIN)' })
+    @Column({ type: 'varchar', length: 100, unique: true })
+    identifier: string;
+
     @ApiProperty({ example: '2026-04-28T10:00:00.000Z', description: 'Timestamp when the role was created' })
     @CreateDateColumn({ name: 'created_at' })
     created_at: Date;

@@ -6,4 +6,9 @@ export class CreateUserRoleDto {
     @IsString()
     @IsNotEmpty()
     role: string;
+
+    @ApiProperty({ example: 'ROLE_ADMIN', description: 'Unique machine-readable identifier for the role (e.g. ROLE_IT_ADMIN)' })
+    @IsString()
+    @IsNotEmpty()
+    identifier: string;
 }

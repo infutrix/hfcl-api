@@ -9,7 +9,7 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
-import { ApiProperty, ApiHideProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiHideProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import * as bcrypt from 'bcrypt';
 import { UserRole } from './user-role.entity';
 
@@ -45,6 +45,10 @@ export class User {
     @ApiProperty({ example: 1, description: 'Foreign key referencing user_roles.id', nullable: true })
     @Column({ name: 'role_id', type: 'int', nullable: true })
     role_id: number;
+
+    @ApiPropertyOptional({ example: 1, description: 'Foreign key referencing plants.id', nullable: true })
+    @Column({ name: 'plant_id', type: 'int', nullable: true })
+    plant_id: number;
 
     @ApiProperty({ enum: UserStatus, example: UserStatus.ACTIVE, description: 'Account status: active | inactive | suspended' })
     @Column({

@@ -76,12 +76,18 @@ export class AuthService {
             user_agent: userAgent,
         });
 
-        const expiresIn = this.configService.get<string>('JWT_EXPIRES_IN', '7d');
         const payload = { sub: user.id, email: user.email, role_id: user.role_id ?? null };
         const access_token = this.jwtService.sign(payload);
-        const { password: _pw, deleted: _del, ...userProfile } = user as any;
+        const { password: _pw, deleted: _del, userRole, ...userProfile } = user as any;
 
-        return { access_token, expires_in: expiresIn, user: userProfile };
+        return {
+            access_token,
+            user: {
+                ...userProfile,
+                role_name: userRole?.role ?? null,
+                role_identifier: userRole?.identifier ?? null,
+            },
+        };
     }
 
     async forgotPassword(dto: ForgotPasswordDto): Promise<{ message: string }> {
