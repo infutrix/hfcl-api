@@ -1,0 +1,17 @@
+name: Main CI/CD
+
+on:
+  push:
+    branches: ['main']
+
+jobs:
+  build:
+    runs-on: ['self-hosted', 'infutrix-org']
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm i
+      - run: |
+          touch .env
+          echo "${{ secrets.PROD_ENV_FILE }}" > .env
+      - run: npm run build
+      - run: pm2 restart hfcl-backend:2219
