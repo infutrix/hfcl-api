@@ -6,6 +6,9 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { AuditModule } from './audit/audit.module';
+import { PlantsModule } from './plants/plants.module';
+import { OtdrDevicesModule } from './otdr-devices/otdr-devices.module';
+import { CableProfilesModule } from './cable-profiles/cable-profiles.module';
 
 @Module({
   imports: [
@@ -31,6 +34,9 @@ import { AuditModule } from './audit/audit.module';
     UsersModule,
     AuthModule,
     AuditModule,
+    PlantsModule,
+    OtdrDevicesModule,
+    CableProfilesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
