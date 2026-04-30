@@ -9,7 +9,6 @@ import {
     ParseIntPipe,
     Patch,
     Post,
-    Req,
     UseGuards,
 } from '@nestjs/common';
 import {
@@ -19,8 +18,8 @@ import {
     ApiResponse,
     ApiTags,
 } from '@nestjs/swagger';
-import { Request } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -42,8 +41,13 @@ export class UsersController {
     @ApiResponse({ status: 400, description: 'Validation failed – check request body.' })
     @ApiResponse({ status: 401, description: 'Unauthorized – missing or invalid token.' })
     @ApiResponse({ status: 409, description: 'A user with this email already exists.' })
-    create(@Body() dto: CreateUserDto, @Req() req: Request): Promise<User> {
-        return this.usersService.create(dto, (req.user as any)?.id);
+    async create(@Body() dto: CreateUserDto, @CurrentUser() user: User | null): Promise<User> {
+        try {
+            return await this.usersService.create(dto, user?.id);
+        } catch (error) {
+            console.error('[UsersController] create error:', error);
+            throw error;
+        }
     }
 
     @Get()
@@ -53,8 +57,13 @@ export class UsersController {
     })
     @ApiResponse({ status: 200, description: 'List of users returned successfully.', type: [User] })
     @ApiResponse({ status: 401, description: 'Unauthorized – missing or invalid token.' })
-    findAll(): Promise<User[]> {
-        return this.usersService.findAll();
+    async findAll(): Promise<User[]> {
+        try {
+            return await this.usersService.findAll();
+        } catch (error) {
+            console.error('[UsersController] findAll error:', error);
+            throw error;
+        }
     }
 
     @Get(':id')
@@ -66,8 +75,13 @@ export class UsersController {
     @ApiResponse({ status: 200, description: 'User found and returned.', type: User })
     @ApiResponse({ status: 401, description: 'Unauthorized – missing or invalid token.' })
     @ApiResponse({ status: 404, description: 'User not found.' })
-    findOne(@Param('id', ParseIntPipe) id: number): Promise<User> {
-        return this.usersService.findOne(id);
+    async findOne(@Param('id', ParseIntPipe) id: number): Promise<User> {
+        try {
+            return await this.usersService.findOne(id);
+        } catch (error) {
+            console.error('[UsersController] findOne error:', error);
+            throw error;
+        }
     }
 
     @Patch(':id')
@@ -81,12 +95,17 @@ export class UsersController {
     @ApiResponse({ status: 401, description: 'Unauthorized – missing or invalid token.' })
     @ApiResponse({ status: 404, description: 'User not found.' })
     @ApiResponse({ status: 409, description: 'Another user already uses the provided email.' })
-    update(
+    async update(
         @Param('id', ParseIntPipe) id: number,
         @Body() dto: UpdateUserDto,
-        @Req() req: Request,
+        @CurrentUser() user: User | null,
     ): Promise<User> {
-        return this.usersService.update(id, dto, (req.user as any)?.id);
+        try {
+            return await this.usersService.update(id, dto, user?.id);
+        } catch (error) {
+            console.error('[UsersController] update error:', error);
+            throw error;
+        }
     }
 
     @Delete(':id')
@@ -99,7 +118,12 @@ export class UsersController {
     @ApiResponse({ status: 204, description: 'User soft-deleted successfully.' })
     @ApiResponse({ status: 401, description: 'Unauthorized – missing or invalid token.' })
     @ApiResponse({ status: 404, description: 'User not found.' })
-    remove(@Param('id', ParseIntPipe) id: number, @Req() req: Request): Promise<void> {
-        return this.usersService.softDelete(id, (req.user as any)?.id);
+    async remove(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User | null): Promise<void> {
+        try {
+            return await this.usersService.softDelete(id, user?.id);
+        } catch (error) {
+            console.error('[UsersController] remove error:', error);
+            throw error;
+        }
     }
 }

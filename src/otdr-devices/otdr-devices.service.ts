@@ -2,6 +2,7 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OtdrDevice } from './entities/otdr-device.entity';
+import { User } from '../users/entities/user.entity';
 import { CreateOtdrDeviceDto } from './dto/create-otdr-device.dto';
 import { UpdateOtdrDeviceDto } from './dto/update-otdr-device.dto';
 import { AuditService } from '../audit/audit.service';
@@ -22,8 +23,8 @@ export class OtdrDevicesService {
         }
         const device = this.otdrDeviceRepository.create({
             ...dto,
-            created_by: actorId,
-            modified_by: actorId,
+            created_by: actorId ? { id: actorId } as User : undefined,
+            modified_by: actorId ? { id: actorId } as User : undefined,
         });
         const saved = await this.otdrDeviceRepository.save(device);
         await this.auditService.logAudit({
@@ -59,7 +60,7 @@ export class OtdrDevicesService {
             if (conflict) throw new ConflictException(`Device ID "${dto.device_id}" already exists`);
         }
         const oldValues = { ...device };
-        Object.assign(device, dto, { modified_by: actorId });
+        Object.assign(device, dto, { modified_by: actorId ? { id: actorId } as User : undefined });
         const saved = await this.otdrDeviceRepository.save(device);
         await this.auditService.logAudit({
             user_id: actorId,

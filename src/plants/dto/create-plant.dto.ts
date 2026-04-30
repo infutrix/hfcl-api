@@ -1,6 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { PlantStatus } from '../entities/plant.entity';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreatePlantDto {
     @ApiProperty({ example: 'Plant A', description: 'Name of the plant' })
@@ -13,8 +12,8 @@ export class CreatePlantDto {
     @IsNotEmpty()
     location: string;
 
-    @ApiPropertyOptional({ enum: PlantStatus, default: PlantStatus.ACTIVE, description: 'Status of the plant' })
+    @ApiPropertyOptional({ example: true, description: 'Status: true = active, false = inactive' })
     @IsOptional()
-    @IsEnum(PlantStatus)
-    status?: PlantStatus;
+    @IsBoolean()
+    status?: boolean;
 }

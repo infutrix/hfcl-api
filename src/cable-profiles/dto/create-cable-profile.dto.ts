@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-    IsEnum,
+    IsBoolean,
     IsInt,
     IsNotEmpty,
     IsNumber,
@@ -9,7 +9,6 @@ import {
     IsString,
     Min,
 } from 'class-validator';
-import { CableProfileStatus } from '../entities/cable-profile.entity';
 
 export class CreateCableProfileDto {
     @ApiProperty({ example: 'Single Mode', description: 'Type of the cable' })
@@ -76,8 +75,8 @@ export class CreateCableProfileDto {
     @Min(0)
     gri_1550nm: number;
 
-    @ApiPropertyOptional({ enum: CableProfileStatus, default: CableProfileStatus.ACTIVE, description: 'Status of the profile' })
+    @ApiPropertyOptional({ example: true, description: 'Status: true = active, false = inactive' })
     @IsOptional()
-    @IsEnum(CableProfileStatus)
-    status?: CableProfileStatus;
+    @IsBoolean()
+    status?: boolean;
 }

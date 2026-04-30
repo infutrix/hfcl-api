@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Plant } from './entities/plant.entity';
+import { User } from '../users/entities/user.entity';
 import { CreatePlantDto } from './dto/create-plant.dto';
 import { UpdatePlantDto } from './dto/update-plant.dto';
 import { AuditService } from '../audit/audit.service';
@@ -18,8 +19,8 @@ export class PlantsService {
     async create(dto: CreatePlantDto, actorId?: number): Promise<Plant> {
         const plant = this.plantRepository.create({
             ...dto,
-            created_by: actorId,
-            modified_by: actorId,
+            created_by: actorId ? { id: actorId } as User : undefined,
+            modified_by: actorId ? { id: actorId } as User : undefined,
         });
         const saved = await this.plantRepository.save(plant);
         await this.auditService.logAudit({
@@ -45,7 +46,7 @@ export class PlantsService {
     async update(id: number, dto: UpdatePlantDto, actorId?: number): Promise<Plant> {
         const plant = await this.findOne(id);
         const oldValues = { ...plant };
-        Object.assign(plant, dto, { modified_by: actorId });
+        Object.assign(plant, dto, { modified_by: actorId ? { id: actorId } as User : undefined });
         const saved = await this.plantRepository.save(plant);
         await this.auditService.logAudit({
             user_id: actorId,

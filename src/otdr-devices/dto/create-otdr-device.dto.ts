@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-    IsEnum,
+    IsBoolean,
     IsInt,
     IsIP,
     IsNotEmpty,
@@ -9,7 +9,6 @@ import {
     Max,
     Min,
 } from 'class-validator';
-import { OtdrDeviceStatus } from '../entities/otdr-device.entity';
 
 export class CreateOtdrDeviceDto {
     @ApiProperty({ example: 'OTDR-P1-01', description: 'Name of the OTDR device' })
@@ -52,8 +51,8 @@ export class CreateOtdrDeviceDto {
     @IsInt()
     plant_id: number;
 
-    @ApiPropertyOptional({ enum: OtdrDeviceStatus, default: OtdrDeviceStatus.ACTIVE, description: 'Status of the device' })
+    @ApiPropertyOptional({ example: true, description: 'Status: true = active, false = inactive' })
     @IsOptional()
-    @IsEnum(OtdrDeviceStatus)
-    status?: OtdrDeviceStatus;
+    @IsBoolean()
+    status?: boolean;
 }

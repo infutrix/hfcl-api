@@ -9,7 +9,6 @@ import {
     ParseIntPipe,
     Patch,
     Post,
-    Req,
     UseGuards,
 } from '@nestjs/common';
 import {
@@ -19,8 +18,9 @@ import {
     ApiResponse,
     ApiTags,
 } from '@nestjs/swagger';
-import { Request } from 'express';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { User } from '../entities/user.entity';
 import { UserRolesService } from './user-roles.service';
 import { CreateUserRoleDto } from '../dto/create-user-role.dto';
 import { UpdateUserRoleDto } from '../dto/update-user-role.dto';
@@ -42,8 +42,13 @@ export class UserRolesController {
     @ApiResponse({ status: 400, description: 'Validation failed – check request body.' })
     @ApiResponse({ status: 401, description: 'Unauthorized – missing or invalid token.' })
     @ApiResponse({ status: 409, description: 'A role with this name already exists.' })
-    create(@Body() dto: CreateUserRoleDto, @Req() req: Request): Promise<UserRole> {
-        return this.userRolesService.create(dto, (req.user as any)?.id);
+    async create(@Body() dto: CreateUserRoleDto, @CurrentUser() user: User | null): Promise<UserRole> {
+        try {
+            return await this.userRolesService.create(dto, user?.id);
+        } catch (error) {
+            console.error('[UserRolesController] create error:', error);
+            throw error;
+        }
     }
 
     @Get()
@@ -53,8 +58,13 @@ export class UserRolesController {
     })
     @ApiResponse({ status: 200, description: 'List of roles returned successfully.', type: [UserRole] })
     @ApiResponse({ status: 401, description: 'Unauthorized – missing or invalid token.' })
-    findAll(): Promise<UserRole[]> {
-        return this.userRolesService.findAll();
+    async findAll(): Promise<UserRole[]> {
+        try {
+            return await this.userRolesService.findAll();
+        } catch (error) {
+            console.error('[UserRolesController] findAll error:', error);
+            throw error;
+        }
     }
 
     @Get(':id')
@@ -66,8 +76,13 @@ export class UserRolesController {
     @ApiResponse({ status: 200, description: 'Role found and returned.', type: UserRole })
     @ApiResponse({ status: 401, description: 'Unauthorized – missing or invalid token.' })
     @ApiResponse({ status: 404, description: 'Role not found.' })
-    findOne(@Param('id', ParseIntPipe) id: number): Promise<UserRole> {
-        return this.userRolesService.findOne(id);
+    async findOne(@Param('id', ParseIntPipe) id: number): Promise<UserRole> {
+        try {
+            return await this.userRolesService.findOne(id);
+        } catch (error) {
+            console.error('[UserRolesController] findOne error:', error);
+            throw error;
+        }
     }
 
     @Patch(':id')
@@ -81,12 +96,17 @@ export class UserRolesController {
     @ApiResponse({ status: 401, description: 'Unauthorized – missing or invalid token.' })
     @ApiResponse({ status: 404, description: 'Role not found.' })
     @ApiResponse({ status: 409, description: 'Another role already uses this name.' })
-    update(
+    async update(
         @Param('id', ParseIntPipe) id: number,
         @Body() dto: UpdateUserRoleDto,
-        @Req() req: Request,
+        @CurrentUser() user: User | null,
     ): Promise<UserRole> {
-        return this.userRolesService.update(id, dto, (req.user as any)?.id);
+        try {
+            return await this.userRolesService.update(id, dto, user?.id);
+        } catch (error) {
+            console.error('[UserRolesController] update error:', error);
+            throw error;
+        }
     }
 
     @Delete(':id')
@@ -99,7 +119,12 @@ export class UserRolesController {
     @ApiResponse({ status: 204, description: 'Role deleted successfully.' })
     @ApiResponse({ status: 401, description: 'Unauthorized – missing or invalid token.' })
     @ApiResponse({ status: 404, description: 'Role not found.' })
-    remove(@Param('id', ParseIntPipe) id: number, @Req() req: Request): Promise<void> {
-        return this.userRolesService.remove(id, (req.user as any)?.id);
+    async remove(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User | null): Promise<void> {
+        try {
+            return await this.userRolesService.remove(id, user?.id);
+        } catch (error) {
+            console.error('[UserRolesController] remove error:', error);
+            throw error;
+        }
     }
 }

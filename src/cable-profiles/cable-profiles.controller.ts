@@ -9,7 +9,6 @@ import {
     ParseIntPipe,
     Patch,
     Post,
-    Req,
     UseGuards,
 } from '@nestjs/common';
 import {
@@ -19,8 +18,9 @@ import {
     ApiResponse,
     ApiTags,
 } from '@nestjs/swagger';
-import { Request } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { User } from '../users/entities/user.entity';
 import { CableProfilesService } from './cable-profiles.service';
 import { CreateCableProfileDto } from './dto/create-cable-profile.dto';
 import { UpdateCableProfileDto } from './dto/update-cable-profile.dto';
@@ -38,16 +38,26 @@ export class CableProfilesController {
     @ApiResponse({ status: 201, description: 'Cable profile created successfully.', type: CableProfile })
     @ApiResponse({ status: 400, description: 'Validation failed.' })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
-    create(@Body() dto: CreateCableProfileDto, @Req() req: Request): Promise<CableProfile> {
-        return this.cableProfilesService.create(dto, (req.user as any)?.id);
+    async create(@Body() dto: CreateCableProfileDto, @CurrentUser() user: User | null): Promise<CableProfile> {
+        try {
+            return await this.cableProfilesService.create(dto, user?.id);
+        } catch (error) {
+            console.error('[CableProfilesController] create error:', error);
+            throw error;
+        }
     }
 
     @Get()
     @ApiOperation({ summary: 'Get all cable profiles' })
     @ApiResponse({ status: 200, description: 'List of cable profiles.', type: [CableProfile] })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
-    findAll(): Promise<CableProfile[]> {
-        return this.cableProfilesService.findAll();
+    async findAll(): Promise<CableProfile[]> {
+        try {
+            return await this.cableProfilesService.findAll();
+        } catch (error) {
+            console.error('[CableProfilesController] findAll error:', error);
+            throw error;
+        }
     }
 
     @Get(':id')
@@ -56,8 +66,13 @@ export class CableProfilesController {
     @ApiResponse({ status: 200, description: 'Cable profile found.', type: CableProfile })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @ApiResponse({ status: 404, description: 'Cable profile not found.' })
-    findOne(@Param('id', ParseIntPipe) id: number): Promise<CableProfile> {
-        return this.cableProfilesService.findOne(id);
+    async findOne(@Param('id', ParseIntPipe) id: number): Promise<CableProfile> {
+        try {
+            return await this.cableProfilesService.findOne(id);
+        } catch (error) {
+            console.error('[CableProfilesController] findOne error:', error);
+            throw error;
+        }
     }
 
     @Patch(':id')
@@ -67,12 +82,17 @@ export class CableProfilesController {
     @ApiResponse({ status: 400, description: 'Validation failed.' })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @ApiResponse({ status: 404, description: 'Cable profile not found.' })
-    update(
+    async update(
         @Param('id', ParseIntPipe) id: number,
         @Body() dto: UpdateCableProfileDto,
-        @Req() req: Request,
+        @CurrentUser() user: User | null,
     ): Promise<CableProfile> {
-        return this.cableProfilesService.update(id, dto, (req.user as any)?.id);
+        try {
+            return await this.cableProfilesService.update(id, dto, user?.id);
+        } catch (error) {
+            console.error('[CableProfilesController] update error:', error);
+            throw error;
+        }
     }
 
     @Delete(':id')
@@ -82,7 +102,12 @@ export class CableProfilesController {
     @ApiResponse({ status: 204, description: 'Cable profile deleted successfully.' })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @ApiResponse({ status: 404, description: 'Cable profile not found.' })
-    remove(@Param('id', ParseIntPipe) id: number, @Req() req: Request): Promise<void> {
-        return this.cableProfilesService.remove(id, (req.user as any)?.id);
+    async remove(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User | null): Promise<void> {
+        try {
+            return await this.cableProfilesService.remove(id, user?.id);
+        } catch (error) {
+            console.error('[CableProfilesController] remove error:', error);
+            throw error;
+        }
     }
 }

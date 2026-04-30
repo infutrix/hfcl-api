@@ -9,7 +9,6 @@ import {
     ParseIntPipe,
     Patch,
     Post,
-    Req,
     UseGuards,
 } from '@nestjs/common';
 import {
@@ -19,8 +18,9 @@ import {
     ApiResponse,
     ApiTags,
 } from '@nestjs/swagger';
-import { Request } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { User } from '../users/entities/user.entity';
 import { PlantsService } from './plants.service';
 import { CreatePlantDto } from './dto/create-plant.dto';
 import { UpdatePlantDto } from './dto/update-plant.dto';
@@ -38,16 +38,26 @@ export class PlantsController {
     @ApiResponse({ status: 201, description: 'Plant created successfully.', type: Plant })
     @ApiResponse({ status: 400, description: 'Validation failed.' })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
-    create(@Body() dto: CreatePlantDto, @Req() req: Request): Promise<Plant> {
-        return this.plantsService.create(dto, (req.user as any)?.id);
+    async create(@Body() dto: CreatePlantDto, @CurrentUser() user: User | null): Promise<Plant> {
+        try {
+            return await this.plantsService.create(dto, user?.id);
+        } catch (error) {
+            console.error('[PlantsController] create error:', error);
+            throw error;
+        }
     }
 
     @Get()
     @ApiOperation({ summary: 'Get all plants' })
     @ApiResponse({ status: 200, description: 'List of plants returned successfully.', type: [Plant] })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
-    findAll(): Promise<Plant[]> {
-        return this.plantsService.findAll();
+    async findAll(): Promise<Plant[]> {
+        try {
+            return await this.plantsService.findAll();
+        } catch (error) {
+            console.error('[PlantsController] findAll error:', error);
+            throw error;
+        }
     }
 
     @Get(':id')
@@ -56,8 +66,13 @@ export class PlantsController {
     @ApiResponse({ status: 200, description: 'Plant found.', type: Plant })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @ApiResponse({ status: 404, description: 'Plant not found.' })
-    findOne(@Param('id', ParseIntPipe) id: number): Promise<Plant> {
-        return this.plantsService.findOne(id);
+    async findOne(@Param('id', ParseIntPipe) id: number): Promise<Plant> {
+        try {
+            return await this.plantsService.findOne(id);
+        } catch (error) {
+            console.error('[PlantsController] findOne error:', error);
+            throw error;
+        }
     }
 
     @Patch(':id')
@@ -67,12 +82,17 @@ export class PlantsController {
     @ApiResponse({ status: 400, description: 'Validation failed.' })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @ApiResponse({ status: 404, description: 'Plant not found.' })
-    update(
+    async update(
         @Param('id', ParseIntPipe) id: number,
         @Body() dto: UpdatePlantDto,
-        @Req() req: Request,
+        @CurrentUser() user: User | null,
     ): Promise<Plant> {
-        return this.plantsService.update(id, dto, (req.user as any)?.id);
+        try {
+            return await this.plantsService.update(id, dto, user?.id);
+        } catch (error) {
+            console.error('[PlantsController] update error:', error);
+            throw error;
+        }
     }
 
     @Delete(':id')
@@ -82,7 +102,12 @@ export class PlantsController {
     @ApiResponse({ status: 204, description: 'Plant deleted successfully.' })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @ApiResponse({ status: 404, description: 'Plant not found.' })
-    remove(@Param('id', ParseIntPipe) id: number, @Req() req: Request): Promise<void> {
-        return this.plantsService.remove(id, (req.user as any)?.id);
+    async remove(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User | null): Promise<void> {
+        try {
+            return await this.plantsService.remove(id, user?.id);
+        } catch (error) {
+            console.error('[PlantsController] remove error:', error);
+            throw error;
+        }
     }
 }
