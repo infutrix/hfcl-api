@@ -4,8 +4,6 @@ import { DataSource, Repository } from 'typeorm';
 import { CableWavelength } from './entities/cable-wavelength.entity';
 import { CableWavelengthConfig } from './entities/cable-wavelength-config.entity';
 import { User } from '../users/entities/user.entity';
-import { CreateWavelengthDto } from './dto/create-wavelength.dto';
-import { UpdateWavelengthDto } from './dto/update-wavelength.dto';
 import { CreateWavelengthWithConfigsDto, UpdateWavelengthWithConfigsDto } from './dto/create-wavelength-with-configs.dto';
 
 @Injectable()
@@ -15,17 +13,6 @@ export class WavelengthsService {
         private readonly wavelengthRepository: Repository<CableWavelength>,
         private readonly dataSource: DataSource,
     ) { }
-
-    async create(dto: CreateWavelengthDto, actorId?: number): Promise<CableWavelength> {
-        const existing = await this.wavelengthRepository.findOne({ where: { value: dto.value } });
-        if (existing) throw new ConflictException(`Wavelength value ${dto.value} already exists`);
-        const wavelength = this.wavelengthRepository.create({
-            ...dto,
-            created_by: actorId ? { id: actorId } as User : undefined,
-            modified_by: actorId ? { id: actorId } as User : undefined,
-        });
-        return this.wavelengthRepository.save(wavelength);
-    }
 
     async createWithConfigs(
         dto: CreateWavelengthWithConfigsDto,

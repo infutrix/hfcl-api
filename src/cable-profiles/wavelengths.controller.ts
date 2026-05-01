@@ -22,8 +22,6 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity';
 import { WavelengthsService } from './wavelengths.service';
-import { CreateWavelengthDto } from './dto/create-wavelength.dto';
-import { UpdateWavelengthDto } from './dto/update-wavelength.dto';
 import { CreateWavelengthWithConfigsDto, UpdateWavelengthWithConfigsDto } from './dto/create-wavelength-with-configs.dto';
 import { CableWavelength } from './entities/cable-wavelength.entity';
 import { CableWavelengthConfig } from './entities/cable-wavelength-config.entity';
@@ -34,21 +32,6 @@ import { CableWavelengthConfig } from './entities/cable-wavelength-config.entity
 @Controller('wavelengths')
 export class WavelengthsController {
     constructor(private readonly wavelengthsService: WavelengthsService) { }
-
-    @Post()
-    @ApiOperation({ summary: 'Create a new wavelength' })
-    @ApiResponse({ status: 201, description: 'Wavelength created successfully.', type: CableWavelength })
-    @ApiResponse({ status: 400, description: 'Validation failed.' })
-    @ApiResponse({ status: 401, description: 'Unauthorized.' })
-    @ApiResponse({ status: 409, description: 'Wavelength value already exists.' })
-    async create(@Body() dto: CreateWavelengthDto, @CurrentUser() user: User | null): Promise<CableWavelength> {
-        try {
-            return await this.wavelengthsService.create(dto, user?.id);
-        } catch (error) {
-            console.error('[WavelengthsController] create error:', error);
-            throw error;
-        }
-    }
 
     @Post('with-configs')
     @ApiOperation({ summary: 'Create a wavelength together with its GRI configurations' })
