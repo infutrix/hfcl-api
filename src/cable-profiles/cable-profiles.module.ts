@@ -10,14 +10,12 @@ import { CableTypesController } from './cable-types.controller';
 import { CableTypesService } from './cable-types.service';
 import { WavelengthsController } from './wavelengths.controller';
 import { WavelengthsService } from './wavelengths.service';
-import { WavelengthConfigsController } from './wavelength-configs.controller';
-import { WavelengthConfigsService } from './wavelength-configs.service';
 import { AuditModule } from '../audit/audit.module';
 
 @Module({
     imports: [TypeOrmModule.forFeature([CableProfile, CableType, CableWavelength, CableWavelengthConfig]), AuditModule],
-    controllers: [CableProfilesController, CableTypesController, WavelengthsController, WavelengthConfigsController],
-    providers: [CableProfilesService, CableTypesService, WavelengthsService, WavelengthConfigsService],
-    exports: [CableProfilesService, CableTypesService, WavelengthsService, WavelengthConfigsService],
+    controllers: [CableProfilesController, CableTypesController, WavelengthsController],
+    providers: [CableProfilesService, CableTypesService, WavelengthsService],
+    exports: [CableProfilesService, CableTypesService, WavelengthsService],
 })
 export class CableProfilesModule { }
