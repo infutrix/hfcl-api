@@ -85,6 +85,19 @@ export class WavelengthsController {
         }
     }
 
+    @Get('/wavelength_configs')
+    @ApiOperation({ summary: 'Get all wavelength with configs' })
+    @ApiResponse({ status: 200, description: 'List of wavelengths.', type: [CableWavelengthConfig] })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    async wavelengthConfigs(): Promise<CableWavelengthConfig[]> {
+        try {
+            return await this.wavelengthsService.wavelengthConfigs();
+        } catch (error) {
+            console.error('[WavelengthsController] findAll error:', error);
+            throw error;
+        }
+    }
+
     @Get(':id')
     @ApiOperation({ summary: 'Get a wavelength by ID' })
     @ApiParam({ name: 'id', type: Number, description: 'ID of the wavelength' })

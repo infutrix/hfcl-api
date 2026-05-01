@@ -11,7 +11,10 @@ export class WavelengthsService {
     constructor(
         @InjectRepository(CableWavelength)
         private readonly wavelengthRepository: Repository<CableWavelength>,
+        @InjectRepository(CableWavelengthConfig)
+        private readonly cableWavelengthConfigRepository: Repository<CableWavelengthConfig>,
         private readonly dataSource: DataSource,
+
     ) { }
 
     async createWithConfigs(
@@ -59,6 +62,13 @@ export class WavelengthsService {
 
     async findAll(): Promise<CableWavelength[]> {
         return this.wavelengthRepository.find({ order: { value: 'ASC' } });
+    }
+
+    async wavelengthConfigs(): Promise<CableWavelengthConfig[]> {
+        return await this.cableWavelengthConfigRepository.find({
+            relations: ['cable_wavelength'],
+            order: { cable_wavelength: { value: 'ASC' }, gri: 'ASC' },
+        });
     }
 
     async updateWithConfigs(
