@@ -43,22 +43,30 @@ export class CableTypesController {
                 summary: 'Root type with sub-types',
                 value: {
                     name: 'IBR',
-                    attributes: ['fiber', 'ribbon', 'strand'],
+                    attributes: [
+                        {
+                            "attribute_name": "Strand",
+                            "attribute_color_count": 24,
+                            "attribute_markings": false
+                        },
+                        {
+                            "attribute_name": "Ribbon",
+                            "attribute_color_count": 0,
+                            "attribute_markings": true
+                        },
+                        {
+                            "attribute_name": "Fiber",
+                            "attribute_color_count": 12,
+                            "attribute_markings": true
+                        }
+                    ],
                     status: true,
                     sub_type: [
                         { name: 'IBR-24F' },
                         { name: 'IBR-48F' },
                     ],
                 },
-            },
-            simple: {
-                summary: 'Simple type without sub-types',
-                value: {
-                    name: 'IBR',
-                    attributes: ['fiber', 'ribbon', 'strand'],
-                    status: true,
-                },
-            },
+            }
         },
     })
     @ApiResponse({ status: 201, description: 'Cable type created successfully.', type: CableType })
