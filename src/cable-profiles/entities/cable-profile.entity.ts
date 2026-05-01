@@ -5,10 +5,13 @@ import {
     Index,
     JoinColumn,
     ManyToOne,
+    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { CableType } from './cable-type.entity';
+import { CableProfileWavelengthConfig } from './cable-profile-wavelength-config.entity';
 
 export enum CableProfileStatus {
     ACTIVE = 'active',
@@ -20,41 +23,22 @@ export class CableProfile {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ name: 'cable_type', type: 'varchar', length: 150 })
-    cable_type: string;
+    @Column({ name: 'name', type: 'varchar', length: 255, unique: true })
+    cable_profile_name: string;
 
-    @Column({ name: 'fiber_count', type: 'int' })
-    fiber_count: number;
+    @Index()
+    @ManyToOne(() => CableType, { nullable: true, onDelete: 'SET NULL' })
+    @JoinColumn({ name: 'cable_type_id' })
+    cable_type: CableType;
 
-    @Column({ name: 'tube_count', type: 'int' })
-    tube_count: number;
-
-    @Column({ name: 'fibers_per_tube', type: 'int' })
-    fibers_per_tube: number;
-
-    @Column({ name: 'tube_color_coding', type: 'text' })
-    tube_color_coding: string;
-
-    @Column({ name: 'fiber_color_coding', type: 'text' })
-    fiber_color_coding: string;
-
-    @Column({ name: 'ribbon_coding', type: 'text', nullable: true })
-    ribbon_coding: string;
-
-    @Column({ name: 'drawing_number', type: 'varchar', length: 150 })
-    drawing_number: string;
-
-    @Column({ name: 'gri_850nm', type: 'decimal', precision: 10, scale: 6 })
-    gri_850nm: number;
-
-    @Column({ name: 'gri_1300nm', type: 'decimal', precision: 10, scale: 6 })
-    gri_1300nm: number;
-
-    @Column({ name: 'gri_1550nm', type: 'decimal', precision: 10, scale: 6 })
-    gri_1550nm: number;
+    @Column({ name: 'attributes', type: 'json', nullable: true })
+    attributes: string[] | null;
 
     @Column({ name: 'status', type: 'boolean', default: true })
     status: boolean;
+
+    @Column({ name: 'deleted', type: 'boolean', default: false })
+    deleted: boolean;
 
     @CreateDateColumn({ name: 'created_at' })
     created_at: Date;
@@ -71,4 +55,8 @@ export class CableProfile {
     @ManyToOne(() => User, (user) => user.id, { nullable: true, onDelete: 'SET NULL' })
     @JoinColumn({ name: 'modified_by_id' })
     modified_by: User;
+
+
+    @OneToMany(() => CableProfileWavelengthConfig, (config) => config.cable_profile)
+    wavelength_configs: CableProfileWavelengthConfig[];
 }

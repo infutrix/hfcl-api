@@ -4,6 +4,7 @@ import {
     Column,
     CreateDateColumn,
     Entity,
+    Index,
     JoinColumn,
     ManyToOne,
     PrimaryGeneratedColumn,
@@ -11,6 +12,7 @@ import {
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserRole } from './user-role.entity';
+import { Plant } from 'src/plants/entities/plant.entity';
 
 export enum UserStatus {
     ACTIVE = 'active',
@@ -36,11 +38,14 @@ export class User {
     @Column({ type: 'varchar', length: 255 })
     password: string;
 
+    //need to change this to relation with user role table
     @Column({ name: 'role_id', type: 'int', nullable: true })
     role_id: number;
 
-    @Column({ name: 'plant_id', type: 'int', nullable: true })
-    plant_id: number;
+    @Index()
+    @ManyToOne(() => Plant, { nullable: true, onDelete: 'SET NULL' })
+    @JoinColumn({ name: 'plant_id' })
+    plant: Plant;
 
     @Column({
         type: 'enum',
@@ -77,5 +82,4 @@ export class User {
     @ManyToOne(() => User, (user) => user.id, { nullable: true, onDelete: 'SET NULL' })
     @JoinColumn({ name: 'modified_by_id' })
     modified_by: User;
-
 }

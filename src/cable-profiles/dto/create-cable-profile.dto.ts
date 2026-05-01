@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
+    IsArray,
     IsBoolean,
     IsInt,
     IsNotEmpty,
@@ -8,72 +10,90 @@ import {
     IsPositive,
     IsString,
     Min,
+    ValidateNested,
 } from 'class-validator';
 
-export class CreateCableProfileDto {
-    @ApiProperty({ example: 'Single Mode', description: 'Type of the cable' })
+export class CableProfileAttributeDto {
+    @ApiProperty({ example: 'Strand', description: 'Attribute name (e.g. Strand, Ribbon, Fiber)' })
     @IsString()
     @IsNotEmpty()
-    cable_type: string;
+    attribute_name: string;
 
-    @ApiProperty({ example: 96, description: 'Total number of fibers in the cable' })
+    @ApiPropertyOptional({ example: 24 })
+    @IsOptional()
     @IsInt()
-    @IsPositive()
-    fiber_count: number;
+    @Min(0)
+    attribute_color_count?: number;
 
-    @ApiProperty({ example: 8, description: 'Total number of tubes in the cable' })
-    @IsInt()
-    @IsPositive()
-    tube_count: number;
-
-    @ApiProperty({ example: 12, description: 'Number of fibers per tube' })
-    @IsInt()
-    @IsPositive()
-    fibers_per_tube: number;
-
-    @ApiProperty({
-        example: 'Red,Green,Blue,Yellow,White,Gray,Brown,Pink',
-        description: 'Comma-separated color coding sequence for all tubes',
-    })
-    @IsString()
-    @IsNotEmpty()
-    tube_color_coding: string;
-
-    @ApiProperty({
-        example: 'Blue,Orange,Green,Brown,Slate,White,Red,Black,Yellow,Violet,Rose,Aqua',
-        description: 'Comma-separated color coding sequence for all fibers per tube',
-    })
-    @IsString()
-    @IsNotEmpty()
-    fiber_color_coding: string;
-
-    @ApiPropertyOptional({
-        example: 'R1,R2,R3,R4',
-        description: 'Ribbon coding sequence (mandatory for ribbon cables; omit or leave blank for others)',
-    })
+    @ApiPropertyOptional({ example: 'Red, Green, Blue', nullable: true })
     @IsOptional()
     @IsString()
-    ribbon_coding?: string;
+    attribute_colors?: string | null;
 
-    @ApiProperty({ example: 'DWG-2026-001', description: 'Drawing number for this cable profile' })
+    @ApiProperty({ example: false })
+    @IsBoolean()
+    attribute_markings: boolean;
+
+    @ApiPropertyOptional({ example: 'R1', nullable: true })
+    @IsOptional()
+    @IsString()
+    attribute_marking_value?: string | null;
+}
+
+export class CableProfileWavelengthConfigDto {
+    @ApiProperty({ example: 1, description: 'ID of the cable_wavelengths record' })
+    @IsInt()
+    @IsPositive()
+    wavelength_id: number;
+
+    @ApiProperty({ example: 1.466, description: 'GRI value (precision 6, scale 4)' })
+    @IsNumber()
+    @Min(0)
+    gri: number;
+
+    @ApiPropertyOptional({ example: 0.3, description: 'Minimum attenuation in dB/km' })
+    @IsOptional()
+    @IsNumber()
+    @Min(0)
+    minAttenuation?: number;
+
+    @ApiPropertyOptional({ example: 0.4, description: 'Maximum attenuation in dB/km' })
+    @IsOptional()
+    @IsNumber()
+    @Min(0)
+    maxAttenuation?: number;
+
+    @ApiPropertyOptional({ example: 'dB/km' })
+    @IsOptional()
     @IsString()
     @IsNotEmpty()
-    drawing_number: string;
+    unit?: string;
+}
 
-    @ApiProperty({ example: 0.35, description: 'Group Refractive Index at 850 nm' })
-    @IsNumber()
-    @Min(0)
-    gri_850nm: number;
+export class CreateCableProfileDto {
+    @ApiProperty({ example: 'IBR-48F', description: 'Unique name of the cable profile' })
+    @IsString()
+    @IsNotEmpty()
+    cable_profile_name: string;
 
-    @ApiProperty({ example: 0.35, description: 'Group Refractive Index at 1300 nm' })
-    @IsNumber()
-    @Min(0)
-    gri_1300nm: number;
+    @ApiProperty({ example: 1, description: 'ID of the cable type' })
+    @IsInt()
+    @IsPositive()
+    cable_type_id: number;
 
-    @ApiProperty({ example: 0.35, description: 'Group Refractive Index at 1550 nm' })
-    @IsNumber()
-    @Min(0)
-    gri_1550nm: number;
+    @ApiPropertyOptional({ type: [CableProfileAttributeDto] })
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => CableProfileAttributeDto)
+    attributes?: CableProfileAttributeDto[];
+
+    @ApiPropertyOptional({ type: [CableProfileWavelengthConfigDto] })
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => CableProfileWavelengthConfigDto)
+    wavelength_configs?: CableProfileWavelengthConfigDto[];
 
     @ApiPropertyOptional({ example: true, description: 'Status: true = active, false = inactive' })
     @IsOptional()

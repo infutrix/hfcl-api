@@ -8,18 +8,29 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
+import { CableProfile } from './cable-profile.entity';
 import { CableWavelength } from './cable-wavelength.entity';
 
-@Entity('cable_wavelength_configs')
-export class CableWavelengthConfig {
+@Entity('cable_profile_wavelength_configs')
+export class CableProfileWavelengthConfig {
     @PrimaryGeneratedColumn()
     id: number;
+
+    @Index()
+    @ManyToOne(() => CableProfile, { nullable: true, onDelete: 'SET NULL' })
+    @JoinColumn({ name: 'cable_profile_id' })
+    cable_profile: CableProfile;
+
+    @Column({ name: 'cable_profile_id', nullable: true })
+    cable_profile_id: number;
 
     @Index()
     @ManyToOne(() => CableWavelength, { nullable: true, onDelete: 'SET NULL' })
     @JoinColumn({ name: 'cable_wavelength_id' })
     cable_wavelength: CableWavelength;
+
+    @Column({ name: 'cable_wavelength_id', nullable: true })
+    cable_wavelength_id: number;
 
     @Column({ name: 'gri', type: 'decimal', precision: 6, scale: 4, nullable: false })
     gri: number;
@@ -33,25 +44,9 @@ export class CableWavelengthConfig {
     @Column({ name: 'unit', type: 'varchar', length: 10, default: 'dB/km' })
     unit: string;
 
-    @Column({ name: 'version', type: 'int', default: 1 })
-    version: number;
-
-    @Column({ name: 'status', type: 'boolean', default: true })
-    status: boolean;
-
     @CreateDateColumn({ name: 'created_at' })
     created_at: Date;
 
     @UpdateDateColumn({ name: 'updated_at' })
     updated_at: Date;
-
-    @Index()
-    @ManyToOne(() => User, (user) => user.id, { nullable: true, onDelete: 'SET NULL' })
-    @JoinColumn({ name: 'created_by_id' })
-    created_by: User;
-
-    @Index()
-    @ManyToOne(() => User, (user) => user.id, { nullable: true, onDelete: 'SET NULL' })
-    @JoinColumn({ name: 'modified_by_id' })
-    modified_by: User;
 }
