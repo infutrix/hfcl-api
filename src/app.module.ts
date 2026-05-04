@@ -9,6 +9,7 @@ import { AuditModule } from './audit/audit.module';
 import { PlantsModule } from './plants/plants.module';
 import { OtdrDevicesModule } from './otdr-devices/otdr-devices.module';
 import { CableProfilesModule } from './cable-profiles/cable-profiles.module';
+import { CustomersModule } from './customers/customers.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { CableProfilesModule } from './cable-profiles/cable-profiles.module';
     PlantsModule,
     OtdrDevicesModule,
     CableProfilesModule,
+    CustomersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
