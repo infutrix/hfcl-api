@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
     IsArray,
     IsBoolean,
@@ -27,6 +27,7 @@ export class CableProfileAttributeDto {
 
     @ApiPropertyOptional({ example: 'Red, Green, Blue', nullable: true })
     @IsOptional()
+    @Transform(({ value }) => (Array.isArray(value) && value.length === 0 ? null : value))
     @IsString()
     attribute_colors?: string | null;
 
@@ -45,6 +46,12 @@ export class CableProfileWavelengthConfigDto {
     @IsInt()
     @IsPositive()
     wavelength_id: number;
+
+    @ApiPropertyOptional({ example: 1310, description: 'Wavelength value (informational, ignored on save)' })
+    @IsOptional()
+    @IsInt()
+    @IsPositive()
+    wavelength?: number;
 
     @ApiProperty({ example: 1.466, description: 'GRI value (precision 6, scale 4)' })
     @IsNumber()
