@@ -10,6 +10,13 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
+
+export interface CableAttribute {
+    attribute_name: string;
+    attribute_color_count: number;
+    attribute_markings: boolean;
+}
+
 @Entity('cable_types')
 export class CableType {
     @PrimaryGeneratedColumn()
@@ -19,7 +26,7 @@ export class CableType {
     name: string;
 
     @Column({ name: 'attributes', type: 'json', nullable: true })
-    attributes: string[] | null;
+    attributes: CableAttribute[] | null;
 
     @Column({ name: 'status', type: 'boolean', default: true })
     status: boolean;
