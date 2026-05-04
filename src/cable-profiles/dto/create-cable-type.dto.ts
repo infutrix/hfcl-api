@@ -11,6 +11,21 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
+export class AttributeDto {
+    @ApiProperty({ example: 'Tube', description: 'Name of the attribute' })
+    @IsString()
+    @IsNotEmpty()
+    attribute_name: string;
+
+    @ApiProperty({ example: 12, description: 'Number of colors for the attribute' })
+    @IsInt()
+    attribute_color_count: number;
+
+    @ApiProperty({ example: true, description: 'Whether the attribute has markings' })
+    @IsBoolean()
+    attribute_markings: boolean;
+}
+
 export class SubTypeDto {
     @ApiProperty({ example: 'IBR-24F', description: 'Name of the sub-type' })
     @IsString()
@@ -30,14 +45,18 @@ export class CreateCableTypeDto {
     name: string;
 
     @ApiPropertyOptional({
-        example: ['fiber', 'ribbon', 'strand'],
-        description: 'List of attribute labels for the cable type',
-        type: [String],
+        description: 'List of attributes for the cable type',
+        type: [AttributeDto],
+        example: [
+            { attribute_name: 'Tube', attribute_color_count: 0, attribute_markings: false },
+            { attribute_name: 'Fiber', attribute_color_count: 12, attribute_markings: true },
+        ],
     })
     @IsOptional()
     @IsArray()
-    @IsString({ each: true })
-    attributes?: string[];
+    @ValidateNested({ each: true })
+    @Type(() => AttributeDto)
+    attributes?: AttributeDto[];
 
     @ApiPropertyOptional({ example: true, description: 'Status: true = active, false = inactive' })
     @IsOptional()
