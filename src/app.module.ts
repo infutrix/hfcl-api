@@ -10,6 +10,7 @@ import { PlantsModule } from './plants/plants.module';
 import { OtdrDevicesModule } from './otdr-devices/otdr-devices.module';
 import { CableProfilesModule } from './cable-profiles/cable-profiles.module';
 import { CustomersModule } from './customers/customers.module';
+import { BatchesModule } from './batches/batches.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { CustomersModule } from './customers/customers.module';
     OtdrDevicesModule,
     CableProfilesModule,
     CustomersModule,
+    BatchesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

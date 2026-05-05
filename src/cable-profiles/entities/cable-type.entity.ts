@@ -8,6 +8,7 @@ import {
     ManyToOne,
     OneToMany,
     PrimaryGeneratedColumn,
+    Unique,
     UpdateDateColumn,
 } from 'typeorm';
 
@@ -18,6 +19,7 @@ export interface CableAttribute {
 }
 
 @Entity('cable_types')
+@Unique('UQ_cable_type_name', ['name'])
 export class CableType {
     @PrimaryGeneratedColumn()
     id: number;

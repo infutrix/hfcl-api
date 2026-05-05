@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
 import { CableType } from './entities/cable-type.entity';
@@ -15,6 +15,8 @@ export class CableTypesService {
 
     async create(dto: CreateCableTypeDto, actorId?: number): Promise<CableType> {
         const { sub_type, ...parentData } = dto;
+        const existing = await this.cableTypeRepository.findOne({ where: { name: parentData.name } });
+        if (existing) throw new ConflictException(`Cable type with name '${parentData.name}' already exists`);
         const cableType = this.cableTypeRepository.create({
             ...parentData,
             created_by: actorId ? { id: actorId } as User : undefined,
@@ -55,6 +57,10 @@ export class CableTypesService {
 
     async update(id: number, dto: UpdateCableTypeDto, actorId?: number): Promise<CableType> {
         const { sub_type, ...parentData } = dto;
+        if (parentData.name) {
+            const existing = await this.cableTypeRepository.findOne({ where: { name: parentData.name } });
+            if (existing && existing.id !== id) throw new ConflictException(`Cable type with name '${parentData.name}' already exists`);
+        }
         const cableType = await this.findOne(id);
         Object.assign(cableType, parentData, {
             modified_by: actorId ? { id: actorId } as User : cableType.modified_by,

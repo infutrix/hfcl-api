@@ -21,16 +21,10 @@ export class CableProfileWavelengthConfig {
     @JoinColumn({ name: 'cable_profile_id' })
     cable_profile: CableProfile;
 
-    @Column({ name: 'cable_profile_id', nullable: true })
-    cable_profile_id: number;
-
     @Index()
     @ManyToOne(() => CableWavelength, { nullable: true, onDelete: 'SET NULL' })
     @JoinColumn({ name: 'cable_wavelength_id' })
     cable_wavelength: CableWavelength;
-
-    @Column({ name: 'cable_wavelength_id', nullable: true })
-    cable_wavelength_id: number;
 
     @Column({ name: 'gri', type: 'decimal', precision: 6, scale: 4, nullable: false })
     gri: number;
