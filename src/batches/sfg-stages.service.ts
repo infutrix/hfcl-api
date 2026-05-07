@@ -1,9 +1,9 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { SfgStage } from './entities/sfg-stage.entity';
+import { SfgStage } from '../batches/entities/sfg-stage.entity';
 import { User } from '../users/entities/user.entity';
-import { CreateSfgStageDto, UpdateSfgStageDto } from './dto/sfg-stage.dto';
+import { CreateSfgStageDto, UpdateSfgStageDto } from '../cable-profiles/dto/sfg-stage.dto';
 
 @Injectable()
 export class SfgStagesService {
@@ -16,7 +16,7 @@ export class SfgStagesService {
         const existing = await this.sfgStageRepository.findOne({ where: { name: dto.name, deleted: false } });
         if (existing) throw new ConflictException(`SFG stage with name "${dto.name}" already exists`);
 
-        const stage = this.sfgStageRepository.create({
+        const stage: SfgStage = this.sfgStageRepository.create({
             ...dto,
             created_by: actorId ? { id: actorId } as User : undefined,
             modified_by: actorId ? { id: actorId } as User : undefined,

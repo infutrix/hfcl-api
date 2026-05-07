@@ -11,9 +11,9 @@ import { CableTypesController } from './cable-types.controller';
 import { CableTypesService } from './cable-types.service';
 import { WavelengthsController } from './wavelengths.controller';
 import { WavelengthsService } from './wavelengths.service';
-import { SfgStage } from './entities/sfg-stage.entity';
-import { SfgStagesController } from './sfg-stages.controller';
-import { SfgStagesService } from './sfg-stages.service';
+import { SfgStage } from '../batches/entities/sfg-stage.entity';
+import { SfgStagesController } from '../batches/sfg-stages.controller';
+import { SfgStagesService } from '../batches/sfg-stages.service';
 import { AuditModule } from '../audit/audit.module';
 
 @Module({

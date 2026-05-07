@@ -22,8 +22,8 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity';
 import { SfgStagesService } from './sfg-stages.service';
-import { CreateSfgStageDto, UpdateSfgStageDto } from './dto/sfg-stage.dto';
-import { SfgStage } from './entities/sfg-stage.entity';
+import { CreateSfgStageDto, UpdateSfgStageDto } from '../cable-profiles/dto/sfg-stage.dto';
+import { SfgStage } from '../batches/entities/sfg-stage.entity';
 
 @ApiTags('SFG Stages')
 @ApiBearerAuth('access-token')

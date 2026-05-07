@@ -8,7 +8,7 @@ import { UpdateBatchDto } from './dto/update-batch.dto';
 import { AuditService } from '../audit/audit.service';
 import { AuditAction } from '../audit/entities/audit-log.entity';
 
-const BATCH_RELATIONS = ['plant', 'cable_type', 'cable_profile', 'customer', 'created_by', 'modified_by'];
+const BATCH_RELATIONS = ['plant', 'cable_type', 'cable_profile', 'customer'];
 
 @Injectable()
 export class BatchesService {
