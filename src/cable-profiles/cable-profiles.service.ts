@@ -33,7 +33,7 @@ export class CableProfilesService {
             const profile = queryRunner.manager.create(CableProfile, {
                 cable_profile_name: dto.cable_profile_name,
                 cable_type: dto.cable_type_id ? { id: dto.cable_type_id } as CableType : undefined,
-                attributes: dto.attributes as any,
+                profile_key_value: dto.profile_key_value,
                 status: dto.status,
                 created_by: actorId ? { id: actorId } as User : undefined,
                 modified_by: actorId ? { id: actorId } as User : undefined,
@@ -94,7 +94,7 @@ export class CableProfilesService {
         try {
             if (dto.cable_profile_name !== undefined) profile.cable_profile_name = dto.cable_profile_name;
             if (dto.cable_type_id !== undefined) profile.cable_type = { id: dto.cable_type_id } as CableType;
-            if (dto.attributes !== undefined) profile.attributes = dto.attributes as any;
+            if (dto.profile_key_value !== undefined) profile.profile_key_value = dto.profile_key_value as any;
             if (dto.status !== undefined) profile.status = dto.status;
             if (actorId) profile.modified_by = { id: actorId } as User;
             const saved = await queryRunner.manager.save(profile);

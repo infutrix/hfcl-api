@@ -30,7 +30,7 @@ import { BatchesModule } from './batches/batches.module';
         database: config.get<string>('DB_NAME', 'hfcl_db'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: config.get<string>('NODE_ENV') !== 'production',
-        logging: config.get<string>('NODE_ENV') === 'development',
+        logging: false, //config.get<string>('NODE_ENV') === 'development',
       }),
     }),
     UsersModule,

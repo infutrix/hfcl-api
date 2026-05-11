@@ -31,8 +31,8 @@ export class CableProfile {
     @JoinColumn({ name: 'cable_type_id' })
     cable_type: CableType;
 
-    @Column({ name: 'attributes', type: 'json', nullable: true })
-    attributes: string[] | null;
+    @Column({ type: 'varchar', length: 255, unique: true })
+    profile_key_value: string;
 
     @Column({ name: 'status', type: 'boolean', default: true })
     status: boolean;

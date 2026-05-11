@@ -13,33 +13,6 @@ import {
     ValidateNested,
 } from 'class-validator';
 
-export class CableProfileAttributeDto {
-    @ApiProperty({ example: 'Strand', description: 'Attribute name (e.g. Strand, Ribbon, Fiber)' })
-    @IsString()
-    @IsNotEmpty()
-    attribute_name: string;
-
-    @ApiPropertyOptional({ example: 24 })
-    @IsOptional()
-    @IsInt()
-    @Min(0)
-    attribute_color_count?: number;
-
-    @ApiPropertyOptional({ example: 'Red, Green, Blue', nullable: true })
-    @IsOptional()
-    @Transform(({ value }) => (Array.isArray(value) && value.length === 0 ? null : value))
-    @IsString()
-    attribute_colors?: string | null;
-
-    @ApiProperty({ example: false })
-    @IsBoolean()
-    attribute_markings: boolean;
-
-    @ApiPropertyOptional({ example: 'R1', nullable: true })
-    @IsOptional()
-    @IsString()
-    attribute_marking_value?: string | null;
-}
 
 export class CableProfileWavelengthConfigDto {
     @ApiProperty({ example: 1, description: 'ID of the cable_wavelengths record' })
@@ -88,13 +61,11 @@ export class CreateCableProfileDto {
     @IsPositive()
     cable_type_id: number;
 
-    @ApiPropertyOptional({ type: [CableProfileAttributeDto] })
-    @IsOptional()
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => CableProfileAttributeDto)
-    attributes?: CableProfileAttributeDto[];
-
+    @ApiProperty({ example: 'IBR-48F', description: 'Cable profile key value' })
+    @IsString()
+    @IsNotEmpty()
+    profile_key_value: string;
+    
     @ApiPropertyOptional({ type: [CableProfileWavelengthConfigDto] })
     @IsOptional()
     @IsArray()
