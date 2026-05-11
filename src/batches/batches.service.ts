@@ -18,25 +18,18 @@ export class BatchesService {
         private readonly auditService: AuditService,
     ) { }
 
-    private async checkUnique(batch_name: string, batch_code: string, plant_id: number, excludeId?: number): Promise<void> {
+    private async checkUnique(batch_name: string, plant_id: number, excludeId?: number): Promise<void> {
         const nameConflict = await this.batchRepository
             .createQueryBuilder('b')
             .where('b.batch_name = :batch_name AND b.plant_id = :plant_id', { batch_name, plant_id })
             .andWhere(excludeId ? 'b.id != :excludeId' : '1=1', { excludeId })
             .getOne();
         if (nameConflict) throw new ConflictException(`Batch name '${batch_name}' already exists for this plant`);
-
-        const codeConflict = await this.batchRepository
-            .createQueryBuilder('b')
-            .where('b.batch_code = :batch_code AND b.plant_id = :plant_id', { batch_code, plant_id })
-            .andWhere(excludeId ? 'b.id != :excludeId' : '1=1', { excludeId })
-            .getOne();
-        if (codeConflict) throw new ConflictException(`Batch code '${batch_code}' already exists for this plant`);
     }
 
     async create(dto: CreateBatchDto, actorId?: number): Promise<Batch> {
         const { plant_id, cable_type_id, cable_profile_id, customer_id, ...rest } = dto;
-        await this.checkUnique(rest.batch_name, rest.batch_code, plant_id);
+        await this.checkUnique(rest.batch_name, plant_id);
         const batch = this.batchRepository.create({
             ...rest,
             plant: { id: plant_id },
@@ -76,9 +69,8 @@ export class BatchesService {
         const { plant_id, cable_type_id, cable_profile_id, customer_id, ...rest } = dto;
         const resolvedPlantId = plant_id ?? batch.plant?.id;
         const resolvedBatchName = rest.batch_name ?? batch.batch_name;
-        const resolvedBatchCode = rest.batch_code ?? batch.batch_code;
         if (resolvedPlantId) {
-            await this.checkUnique(resolvedBatchName, resolvedBatchCode, resolvedPlantId, id);
+            await this.checkUnique(resolvedBatchName, resolvedPlantId, id);
         }
         Object.assign(batch, rest, {
             plant: plant_id ? { id: plant_id } : batch.plant,

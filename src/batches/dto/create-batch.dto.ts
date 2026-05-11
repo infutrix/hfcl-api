@@ -27,11 +27,6 @@ export class CreateBatchDto {
     @IsNotEmpty()
     batch_name: string;
 
-    @ApiProperty({ example: 'BC101', description: 'Batch code (unique per plant)' })
-    @IsString()
-    @IsNotEmpty()
-    batch_code: string;
-
     @ApiProperty({ example: 'D-001', description: 'Drum number' })
     @IsString()
     @IsNotEmpty()

@@ -17,7 +17,6 @@ import { Customer } from 'src/customers/entities/customer.entity';
 
 @Entity('batches')
 @Unique('UQ_batch_name_plant', ['batch_name', 'plant'])
-@Unique('UQ_batch_code_plant', ['batch_code', 'plant'])
 export class Batch {
     @PrimaryGeneratedColumn()
     id: number;
@@ -44,9 +43,6 @@ export class Batch {
 
     @Column({ name: 'batch_name', type: 'varchar', length: 150 })
     batch_name: string;
-
-    @Column({ name: 'batch_code', type: 'varchar' })
-    batch_code: string;
 
     @Column({ name: 'drum_number', type: 'varchar' })
     drum_number: string;

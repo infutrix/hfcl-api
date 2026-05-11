@@ -9,6 +9,10 @@ import { CreateCableProfileDto } from './dto/create-cable-profile.dto';
 import { UpdateCableProfileDto } from './dto/update-cable-profile.dto';
 import { AuditService } from '../audit/audit.service';
 import { AuditAction } from '../audit/entities/audit-log.entity';
+// Default JSON import becomes `require(...).default` under CJS; Node JSON has no `.default`.
+import cableProfileColors = require('./cable-profile-colors.data.json');
+
+export type CableProfileColorsResponse = typeof cableProfileColors;
 
 @Injectable()
 export class CableProfilesService {
@@ -139,5 +143,10 @@ export class CableProfilesService {
             entity_name: 'cable_profiles',
             entity_id: id,
         });
+    }
+
+    /** Static color definitions (see cable-profile-colors.data.json). */
+    getCableProfileColors(): CableProfileColorsResponse {
+        return cableProfileColors;
     }
 }

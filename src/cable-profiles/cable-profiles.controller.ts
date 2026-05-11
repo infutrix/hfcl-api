@@ -20,8 +20,9 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Public } from '../common/decorators/public.decorator';
 import { User } from '../users/entities/user.entity';
-import { CableProfilesService } from './cable-profiles.service';
+import { CableProfilesService, CableProfileColorsResponse } from './cable-profiles.service';
 import { CreateCableProfileDto } from './dto/create-cable-profile.dto';
 import { UpdateCableProfileDto } from './dto/update-cable-profile.dto';
 import { CableProfile } from './entities/cable-profile.entity';
@@ -58,6 +59,17 @@ export class CableProfilesController {
             console.error('[CableProfilesController] findAll error:', error);
             throw error;
         }
+    }
+
+    @Public()
+    @Get('profile-colors')
+    @ApiOperation({
+        summary: 'Cable profile color schemes (static reference)',
+        description: 'Public reference data; no authentication required.',
+    })
+    @ApiResponse({ status: 200, description: 'Profiles with strand, ribbon, tube, and fiber color definitions.' })
+    getProfileColors(): CableProfileColorsResponse {
+        return this.cableProfilesService.getCableProfileColors();
     }
 
     @Get(':id')
