@@ -5,7 +5,6 @@ import { CableProfilesService } from './cable-profiles.service';
 import { CableProfile } from './entities/cable-profile.entity';
 import { CableType } from './entities/cable-type.entity';
 import { CableWavelength } from './entities/cable-wavelength.entity';
-import { CableWavelengthConfig } from './entities/cable-wavelength-config.entity';
 import { CableProfileWavelengthConfig } from './entities/cable-profile-wavelength-config.entity';
 import { CableTypesController } from './cable-types.controller';
 import { CableTypesService } from './cable-types.service';
@@ -17,7 +16,7 @@ import { SfgStagesService } from '../batches/sfg-stages.service';
 import { AuditModule } from '../audit/audit.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([CableProfile, CableType, CableWavelength, CableWavelengthConfig, CableProfileWavelengthConfig, SfgStage]), AuditModule],
+    imports: [TypeOrmModule.forFeature([CableProfile, CableType, CableWavelength, CableProfileWavelengthConfig, SfgStage]), AuditModule],
     controllers: [CableProfilesController, CableTypesController, WavelengthsController, SfgStagesController],
     providers: [CableProfilesService, CableTypesService, WavelengthsService, SfgStagesService],
     exports: [CableProfilesService, CableTypesService, WavelengthsService, SfgStagesService],

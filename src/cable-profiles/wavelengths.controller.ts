@@ -22,9 +22,9 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity';
 import { WavelengthsService } from './wavelengths.service';
-import { CreateWavelengthWithConfigsDto, UpdateWavelengthWithConfigsDto } from './dto/create-wavelength-with-configs.dto';
+import { CreateWavelengthWithConfigsDto } from './dto/create-wavelength-with-configs.dto';
+import { UpdateWavelengthWithConfigsDto } from './dto/update-wavelength-with-configs.dto';
 import { CableWavelength } from './entities/cable-wavelength.entity';
-import { CableWavelengthConfig } from './entities/cable-wavelength-config.entity';
 
 @ApiTags('Wavelengths')
 @ApiBearerAuth('access-token')
@@ -33,41 +33,41 @@ import { CableWavelengthConfig } from './entities/cable-wavelength-config.entity
 export class WavelengthsController {
     constructor(private readonly wavelengthsService: WavelengthsService) { }
 
-    @Post('with-configs')
-    @ApiOperation({ summary: 'Create a wavelength together with its GRI configurations' })
-    @ApiResponse({ status: 201, description: 'Wavelength and configs created successfully.' })
+    @Post()
+    @ApiOperation({ summary: 'Create a wavelength (GRI and attenuation on the wavelength row)' })
+    @ApiResponse({ status: 201, description: 'Wavelength created.', type: CableWavelength })
     @ApiResponse({ status: 400, description: 'Validation failed.' })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @ApiResponse({ status: 409, description: 'Wavelength value already exists.' })
-    async createWithConfigs(
+    async create(
         @Body() dto: CreateWavelengthWithConfigsDto,
         @CurrentUser() user: User | null,
-    ): Promise<{ wavelength: CableWavelength; configs: CableWavelengthConfig[] }> {
+    ): Promise<CableWavelength> {
         try {
-            return await this.wavelengthsService.createWithConfigs(dto, user?.id);
+            return await this.wavelengthsService.create(dto, user?.id);
         } catch (error) {
-            console.error('[WavelengthsController] createWithConfigs error:', error);
+            console.error('[WavelengthsController] create error:', error);
             throw error;
         }
     }
 
-    @Patch(':id/with-configs')
-    @ApiOperation({ summary: 'Update a wavelength and upsert its GRI configurations' })
-    @ApiParam({ name: 'id', type: Number, description: 'ID of the wavelength to update' })
-    @ApiResponse({ status: 200, description: 'Wavelength and configs updated successfully.' })
+    @Patch(':id')
+    @ApiOperation({ summary: 'Update a wavelength (GRI and attenuation fields)' })
+    @ApiParam({ name: 'id', type: Number, description: 'ID of the wavelength' })
+    @ApiResponse({ status: 200, description: 'Wavelength updated.', type: CableWavelength })
     @ApiResponse({ status: 400, description: 'Validation failed.' })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @ApiResponse({ status: 404, description: 'Wavelength not found.' })
     @ApiResponse({ status: 409, description: 'Wavelength value already exists.' })
-    async updateWithConfigs(
+    async update(
         @Param('id', ParseIntPipe) id: number,
         @Body() dto: UpdateWavelengthWithConfigsDto,
         @CurrentUser() user: User | null,
-    ): Promise<{ wavelength: CableWavelength; configs: CableWavelengthConfig[] }> {
+    ): Promise<CableWavelength> {
         try {
-            return await this.wavelengthsService.updateWithConfigs(id, dto, user?.id);
+            return await this.wavelengthsService.update(id, dto, user?.id);
         } catch (error) {
-            console.error('[WavelengthsController] updateWithConfigs error:', error);
+            console.error('[WavelengthsController] update error:', error);
             throw error;
         }
     }
@@ -79,19 +79,6 @@ export class WavelengthsController {
     async findAll(): Promise<CableWavelength[]> {
         try {
             return await this.wavelengthsService.findAll();
-        } catch (error) {
-            console.error('[WavelengthsController] findAll error:', error);
-            throw error;
-        }
-    }
-
-    @Get('/wavelength_configs')
-    @ApiOperation({ summary: 'Get all wavelength with configs' })
-    @ApiResponse({ status: 200, description: 'List of wavelengths.', type: [CableWavelengthConfig] })
-    @ApiResponse({ status: 401, description: 'Unauthorized.' })
-    async wavelengthConfigs(): Promise<CableWavelengthConfig[]> {
-        try {
-            return await this.wavelengthsService.wavelengthConfigs();
         } catch (error) {
             console.error('[WavelengthsController] findAll error:', error);
             throw error;

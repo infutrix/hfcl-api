@@ -6,11 +6,9 @@ import {
     Index,
     JoinColumn,
     ManyToOne,
-    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
-import { CableWavelengthConfig } from './cable-wavelength-config.entity';
 
 @Entity('cable_wavelengths')
 export class CableWavelength {
@@ -21,7 +19,22 @@ export class CableWavelength {
     value: number;
 
     @Column({ type: 'varchar', length: 10, default: 'nm' })
+    wavelength_unit: string;
+
+    @Column({ name: 'gri', type: 'decimal', precision: 6, scale: 4, nullable: false })
+    gri: number;
+
+    @Column({ name: 'min_attenuation', type: 'decimal', precision: 5, scale: 3, nullable: true })
+    min_attenuation: number;
+
+    @Column({ name: 'max_attenuation', type: 'decimal', precision: 5, scale: 3, nullable: true })
+    max_attenuation: number;
+
+    @Column({ name: 'unit', type: 'varchar', length: 10, default: 'dB/km' })
     unit: string;
+
+    @Column({ name: 'version', type: 'int', default: 1 })
+    version: number;
 
     @Column({ type: 'boolean', default: true })
     status: boolean;
@@ -31,9 +44,6 @@ export class CableWavelength {
 
     @UpdateDateColumn({ name: 'updated_at' })
     updated_at: Date;
-
-    @OneToMany(() => CableWavelengthConfig, (config) => config.cable_wavelength)
-    configs: CableWavelengthConfig[];
 
     @Index()
     @ManyToOne(() => User, (user) => user.id, { nullable: true, onDelete: 'SET NULL' })

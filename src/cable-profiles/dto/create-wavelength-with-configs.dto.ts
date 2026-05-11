@@ -1,7 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
 import {
-    IsArray,
     IsInt,
     IsNotEmpty,
     IsNumber,
@@ -9,15 +7,20 @@ import {
     IsPositive,
     IsString,
     Min,
-    ValidateNested,
 } from 'class-validator';
 
-export class WavelengthConfigItemDto {
-    @ApiPropertyOptional({ example: 1, description: 'Config ID — provide to update an existing record, omit to create a new one' })
-    @IsOptional()
+export class CreateWavelengthWithConfigsDto {
+    @ApiProperty({ example: 1310, description: 'Wavelength value (e.g. 1310, 1550, 1625)' })
     @IsInt()
     @IsPositive()
-    id?: number;
+    wavelength: number;
+
+    @ApiPropertyOptional({ example: 'nm', description: 'Unit of the wavelength (default: nm)' })
+    @IsOptional()
+    @IsString()
+    @IsNotEmpty()
+    wavelength_unit?: string;
+
     @ApiProperty({ example: 1.4660, description: 'GRI value (precision 6, scale 4)' })
     @IsNumber()
     @Min(0)
@@ -40,44 +43,4 @@ export class WavelengthConfigItemDto {
     @IsString()
     @IsNotEmpty()
     unit?: string;
-}
-
-export class CreateWavelengthWithConfigsDto {
-    @ApiProperty({ example: 1310, description: 'Wavelength value (e.g. 1310, 1550, 1625)' })
-    @IsInt()
-    @IsPositive()
-    wavelength: number;
-
-    @ApiPropertyOptional({ example: 'nm', description: 'Unit of the wavelength (default: nm)' })
-    @IsOptional()
-    @IsString()
-    @IsNotEmpty()
-    wavelength_unit?: string;
-
-    @ApiProperty({ type: [WavelengthConfigItemDto], description: 'List of GRI-attenuation configurations' })
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => WavelengthConfigItemDto)
-    configs: WavelengthConfigItemDto[];
-}
-
-export class UpdateWavelengthWithConfigsDto {
-    @ApiPropertyOptional({ example: 1310, description: 'Wavelength value (e.g. 1310, 1550, 1625)' })
-    @IsOptional()
-    @IsInt()
-    @IsPositive()
-    wavelength?: number;
-
-    @ApiPropertyOptional({ example: 'nm', description: 'Unit of the wavelength (default: nm)' })
-    @IsOptional()
-    @IsString()
-    @IsNotEmpty()
-    wavelength_unit?: string;
-
-    @ApiPropertyOptional({ type: [WavelengthConfigItemDto], description: 'Configs to upsert — include id to update, omit to create' })
-    @IsOptional()
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => WavelengthConfigItemDto)
-    configs?: WavelengthConfigItemDto[];
 }
