@@ -28,7 +28,7 @@ export class Batch {
     customer: Customer;
 
     @Column({ name: 'batch_name', type: 'varchar', length: 150 })
-    batch_name: string;
+    batch: string;
 
     @Column({ name: 'drum_number', type: 'varchar' })
     drum_number: string;
@@ -44,14 +44,4 @@ export class Batch {
 
     @UpdateDateColumn({ name: 'modified_at' })
     modified_at: Date;
-
-    @Index()
-    @ManyToOne(() => User, (user) => user.id, { nullable: true, onDelete: 'SET NULL' })
-    @JoinColumn({ name: 'created_by_id' })
-    created_by: User;
-
-    @Index()
-    @ManyToOne(() => User, (user) => user.id, { nullable: true, onDelete: 'SET NULL' })
-    @JoinColumn({ name: 'modified_by_id' })
-    modified_by: User;
 }

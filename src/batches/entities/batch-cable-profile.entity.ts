@@ -6,7 +6,6 @@ import {
     JoinColumn,
     ManyToOne,
     PrimaryGeneratedColumn,
-    Unique,
     UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
@@ -14,6 +13,8 @@ import { Plant } from 'src/plants/entities/plant.entity';
 import { CableType } from 'src/cable-profiles/entities/cable-type.entity';
 import { CableProfile } from 'src/cable-profiles/entities/cable-profile.entity';
 import { Customer } from 'src/customers/entities/customer.entity';
+import { OtdrDevice } from '../../otdr-devices/entities/otdr-device.entity';
+import { Batch } from './batch.entity';
 
 @Entity('batch_cable_profiles')
 export class BatchCableProfile {
@@ -23,34 +24,53 @@ export class BatchCableProfile {
     @Index()
     @ManyToOne(() => Plant, { nullable: true, onDelete: 'SET NULL' })
     @JoinColumn({ name: 'plant_id' })
-    plant: Plant;
+    plant: Plant | null;
+
+    @Index()
+    @ManyToOne(() => Batch, { nullable: true, onDelete: 'SET NULL' })
+    @JoinColumn({ name: 'batch_id' })
+    batch: Batch | null;
+
+    @Column({ type: 'varchar', length: 150 })
+    batch_name: string;
 
     @Index()
     @ManyToOne(() => CableType, { nullable: true, onDelete: 'SET NULL' })
     @JoinColumn({ name: 'cable_type_id' })
-    cable_type: CableType;
+    cable_type: CableType | null;
 
     @Index()
     @ManyToOne(() => CableProfile, { nullable: true, onDelete: 'SET NULL' })
     @JoinColumn({ name: 'cable_profile_id' })
-    cable_profile: CableProfile;
+    cable_profile: CableProfile | null;
+
+    @Index()
+    @ManyToOne(() => OtdrDevice, { nullable: true, onDelete: 'SET NULL' })
+    @JoinColumn({ name: 'otdr_device_id' })
+    otdr_device: OtdrDevice | null;
+
+    @Index()
+    @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
+    @JoinColumn({ name: 'operator_id' })
+    operator: User | null;
 
     @Index()
     @ManyToOne(() => Customer, { nullable: true, onDelete: 'SET NULL' })
     @JoinColumn({ name: 'customer_id' })
-    customer: Customer;
+    customer: Customer | null;
 
-    @Column({ name: 'batch_name', type: 'varchar', length: 150 })
-    batch_name: string;
 
-    @Column({ name: 'drum_number', type: 'varchar' })
+    @Column({ type: 'varchar' })
     drum_number: string;
 
-    @Column({ name: 'fiber_type', type: 'varchar' })
+    @Column({ type: 'varchar' })
     fiber_type: string;
 
     @Column({ name: 'status', type: 'boolean', default: true })
     status: boolean;
+
+    @Column({ type: 'boolean', default: false })
+    deleted: boolean;
 
     @CreateDateColumn({ name: 'created_at' })
     created_at: Date;
