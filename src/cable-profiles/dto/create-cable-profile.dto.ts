@@ -20,7 +20,10 @@ export class CableProfileWavelengthConfigDto {
     @IsPositive()
     wavelength_id: number;
 
-    @ApiPropertyOptional({ example: 1310, description: 'Wavelength value (informational, ignored on save)' })
+    @ApiPropertyOptional({
+        example: 1310,
+        description: 'Optional; on save the server sets `wavelength` from `cable_wavelengths.value` using `wavelength_id`.',
+    })
     @IsOptional()
     @IsInt()
     @IsPositive()

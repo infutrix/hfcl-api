@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { CableProfile } from './entities/cable-profile.entity';
 import { CableProfileWavelengthConfig } from './entities/cable-profile-wavelength-config.entity';
 import { CableType } from './entities/cable-type.entity';
+import { CableWavelength } from './entities/cable-wavelength.entity';
 import { User } from '../users/entities/user.entity';
 import { CreateCableProfileDto } from './dto/create-cable-profile.dto';
 import { UpdateCableProfileDto } from './dto/update-cable-profile.dto';
@@ -41,10 +42,19 @@ export class CableProfilesService {
             const saved = await queryRunner.manager.save(profile);
 
             if (dto.wavelength_configs?.length) {
-                const configEntities = dto.wavelength_configs.map(wc =>
+                const wavelengthIds = [...new Set(dto.wavelength_configs.map((w) => w.wavelength_id))];
+                const cableWavelengths = await queryRunner.manager.find(CableWavelength, {
+                    where: { id: In(wavelengthIds) },
+                });
+                if (cableWavelengths.length !== wavelengthIds.length) {
+                    throw new BadRequestException('One or more wavelength_id values are not valid cable_wavelengths ids');
+                }
+                const nmById = new Map(cableWavelengths.map((w) => [w.id, w.value]));
+                const configEntities = dto.wavelength_configs.map((wc) =>
                     queryRunner.manager.create(CableProfileWavelengthConfig, {
                         cable_profile_id: saved.id,
                         cable_wavelength_id: wc.wavelength_id,
+                        wavelength: nmById.get(wc.wavelength_id)!,
                         gri: wc.gri,
                         min_attenuation: wc.minAttenuation,
                         max_attenuation: wc.maxAttenuation,
@@ -102,10 +112,19 @@ export class CableProfilesService {
             if (dto.wavelength_configs !== undefined) {
                 await queryRunner.manager.delete(CableProfileWavelengthConfig, { cable_profile_id: id });
                 if (dto.wavelength_configs.length) {
-                    const configEntities = dto.wavelength_configs.map(wc =>
+                    const wavelengthIds = [...new Set(dto.wavelength_configs.map((w) => w.wavelength_id))];
+                    const cableWavelengths = await queryRunner.manager.find(CableWavelength, {
+                        where: { id: In(wavelengthIds) },
+                    });
+                    if (cableWavelengths.length !== wavelengthIds.length) {
+                        throw new BadRequestException('One or more wavelength_id values are not valid cable_wavelengths ids');
+                    }
+                    const nmById = new Map(cableWavelengths.map((w) => [w.id, w.value]));
+                    const configEntities = dto.wavelength_configs.map((wc) =>
                         queryRunner.manager.create(CableProfileWavelengthConfig, {
                             cable_profile_id: saved.id,
                             cable_wavelength_id: wc.wavelength_id,
+                            wavelength: nmById.get(wc.wavelength_id)!,
                             gri: wc.gri,
                             min_attenuation: wc.minAttenuation,
                             max_attenuation: wc.maxAttenuation,

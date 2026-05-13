@@ -13,6 +13,8 @@ import { UpdateBatchCableProfileDto } from './dto/update-batch-cable-profile.dto
 import { AuditService } from '../audit/audit.service';
 import { AuditAction } from '../audit/entities/audit-log.entity';
 
+import { BatchFiberTestingService } from './batch-fiber-testing.service';
+
 const batchCableProfileRelations = {
     plant: true,
     batch: true,
@@ -33,6 +35,7 @@ export class BatchCableProfilesService {
         @InjectRepository(CableProfile)
         private readonly cableProfileRepository: Repository<CableProfile>,
         private readonly auditService: AuditService,
+        private readonly batchFiberTestingService: BatchFiberTestingService,
     ) { }
 
     async create(dto: CreateBatchCableProfileDto, actorId?: number): Promise<BatchCableProfile> {
@@ -74,6 +77,14 @@ export class BatchCableProfilesService {
         });
 
         const saved = await this.batchCableProfileRepository.save(row);
+
+        try {
+            await this.batchFiberTestingService.saveFiberTestingMatrix(saved.id);
+        } catch (error) {
+            await this.batchCableProfileRepository.remove(saved);
+            throw error;
+        }
+    
         await this.auditService.logAudit({
             user_id: actorId,
             action: AuditAction.CREATE,

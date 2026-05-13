@@ -1,0 +1,3 @@
+-- OBSOLETE — do not run.
+-- The `wavelength` column is kept on `cable_profile_wavelength_configs`.
+-- To fix duplicate-key / index issues, use: scripts/sql/003-fix-cable-profile-wavelength-config-wavelength.sql

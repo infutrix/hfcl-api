@@ -56,7 +56,6 @@ export class CableProfile {
     @JoinColumn({ name: 'modified_by_id' })
     modified_by: User;
 
-
     @OneToMany(() => CableProfileWavelengthConfig, (config) => config.cable_profile)
     wavelength_configs: CableProfileWavelengthConfig[];
 }

@@ -29,7 +29,7 @@ import { BatchesModule } from './batches/batches.module';
         password: config.get<string>('DB_PASSWORD', ''),
         database: config.get<string>('DB_NAME', 'hfcl_db'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: config.get<string>('NODE_ENV') !== 'production',
+        synchronize: true,
         logging: false, //config.get<string>('NODE_ENV') === 'development',
       }),
     }),

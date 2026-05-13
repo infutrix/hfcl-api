@@ -59,7 +59,6 @@ export class BatchCableProfile {
     @JoinColumn({ name: 'customer_id' })
     customer: Customer | null;
 
-
     @Column({ type: 'varchar' })
     drum_number: string;
 

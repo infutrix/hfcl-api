@@ -6,11 +6,13 @@ import {
     JoinColumn,
     ManyToOne,
     PrimaryGeneratedColumn,
+    Unique,
     UpdateDateColumn,
 } from 'typeorm';
 import { CableProfile } from './cable-profile.entity';
 import { CableWavelength } from './cable-wavelength.entity';
 
+/** Denormalized nm for queries; uniqueness is per cable profile, not globally (see composite Unique). */
 @Entity('cable_profile_wavelength_configs')
 export class CableProfileWavelengthConfig {
     @PrimaryGeneratedColumn()
@@ -25,6 +27,13 @@ export class CableProfileWavelengthConfig {
     @ManyToOne(() => CableWavelength, { nullable: true, onDelete: 'SET NULL' })
     @JoinColumn({ name: 'cable_wavelength_id' })
     cable_wavelength: CableWavelength;
+
+    @Column({
+        type: 'int',
+        nullable: false,
+        comment: 'Wavelength in nm (denormalized from cable_wavelengths.value); unique per cable_profile_id',
+    })
+    wavelength: number;
 
     @Column({ name: 'gri', type: 'decimal', precision: 6, scale: 4, nullable: false })
     gri: number;
