@@ -79,7 +79,7 @@ export class CableProfilesService {
             await queryRunner.release();
         }
     }
-    
+
     async findAll(): Promise<CableProfile[]> {
         const profiles = await this.cableProfileRepository.find({
             order: { id: 'ASC' },
@@ -91,7 +91,7 @@ export class CableProfilesService {
     async findOne(id: number): Promise<CableProfile> {
         const profile = await this.cableProfileRepository.findOne({
             where: { id },
-            relations: ['wavelength_configs'],
+            relations: ['wavelength_configs','wavelength_configs.cable_wavelength'],
         });
         if (!profile) throw new NotFoundException(`Cable Profile #${id} not found`);
         return this.withColorProfile(profile);
