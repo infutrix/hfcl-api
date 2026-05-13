@@ -10,7 +10,6 @@ import { CreateCableProfileDto } from './dto/create-cable-profile.dto';
 import { UpdateCableProfileDto } from './dto/update-cable-profile.dto';
 import { AuditService } from '../audit/audit.service';
 import { AuditAction } from '../audit/entities/audit-log.entity';
-// Default JSON import becomes `require(...).default` under CJS; Node JSON has no `.default`.
 import cableProfileColors = require('./cable-profile-colors.data.json');
 
 export type CableProfileColorsResponse = typeof cableProfileColors;
@@ -80,18 +79,22 @@ export class CableProfilesService {
             await queryRunner.release();
         }
     }
-
+    
     async findAll(): Promise<CableProfile[]> {
-        return this.cableProfileRepository.find({ order: { id: 'ASC' } });
+        const profiles = await this.cableProfileRepository.find({
+            order: { id: 'ASC' },
+            relations: ['wavelength_configs'],
+        });
+        return profiles.map((p) => this.withColorProfile(p));
     }
 
     async findOne(id: number): Promise<CableProfile> {
         const profile = await this.cableProfileRepository.findOne({
             where: { id },
-            relations: ['wavelength_configs', 'wavelength_configs.cable_wavelength'],
+            relations: ['wavelength_configs'],
         });
         if (!profile) throw new NotFoundException(`Cable Profile #${id} not found`);
-        return profile;
+        return this.withColorProfile(profile);
     }
 
     async update(id: number, dto: UpdateCableProfileDto, actorId?: number): Promise<CableProfile> {
@@ -167,5 +170,11 @@ export class CableProfilesService {
     /** Static color definitions (see cable-profile-colors.data.json). */
     getCableProfileColors(): CableProfileColorsResponse {
         return cableProfileColors;
+    }
+
+    private withColorProfile<T extends CableProfile>(profile: T): T {
+        const match = cableProfileColors.profiles.find((e) => e.profile_key_value === profile.profile_key_value);
+        profile.colorProfile = match ?? null;
+        return profile;
     }
 }

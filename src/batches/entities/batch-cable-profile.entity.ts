@@ -15,6 +15,7 @@ import { CableProfile } from 'src/cable-profiles/entities/cable-profile.entity';
 import { Customer } from 'src/customers/entities/customer.entity';
 import { OtdrDevice } from '../../otdr-devices/entities/otdr-device.entity';
 import { Batch } from './batch.entity';
+import { SfgStage } from './sfg-stage.entity';
 
 @Entity('batch_cable_profiles')
 export class BatchCableProfile {
@@ -58,6 +59,11 @@ export class BatchCableProfile {
     @ManyToOne(() => Customer, { nullable: true, onDelete: 'SET NULL' })
     @JoinColumn({ name: 'customer_id' })
     customer: Customer | null;
+
+    @Index()
+    @ManyToOne(() => SfgStage, { nullable: true, onDelete: 'SET NULL' })
+    @JoinColumn({ name: 'sfg_stage_id' })
+    sfg_stage: SfgStage | null;
 
     @Column({ type: 'varchar' })
     drum_number: string;

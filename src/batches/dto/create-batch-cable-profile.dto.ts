@@ -17,15 +17,18 @@ export class CreateBatchCableProfileDto {
     @IsInt()
     cable_profile_id?: number;
 
-    @ApiPropertyOptional({ example: 1, description: 'Operator user ID (optional)' })
-    @IsOptional()
-    @IsInt()
-    operator_id?: number;
-
     @ApiPropertyOptional({ example: 1, description: 'Customer ID (optional)' })
     @IsOptional()
     @IsInt()
     customer_id?: number;
+
+    @ApiPropertyOptional({
+        example: 1,
+        description: 'SFG stage ID — links to sfg_stages.id (maps to batch_cable_profiles.sfg_stage_id)',
+    })
+    @IsOptional()
+    @IsInt()
+    stage_id?: number;
 
     @ApiProperty({ example: 'D-001', description: 'Drum number' })
     @IsString()
@@ -36,4 +39,5 @@ export class CreateBatchCableProfileDto {
     @IsString()
     @IsNotEmpty()
     fiber_type: string;
+
 }

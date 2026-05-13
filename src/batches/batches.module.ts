@@ -11,9 +11,13 @@ import { CableProfile } from '../cable-profiles/entities/cable-profile.entity';
 import { BatchFiberTestingController } from './batch-fiber-testing.controller';
 import { BatchFiberTestingService } from './batch-fiber-testing.service';
 import { BatchFiberTesting } from './entities/batch-fiber-testing.entity';
+import { SfgStage } from './entities/sfg-stage.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([BatchCableProfile, Batch, CableProfile, BatchFiberTesting]), AuditModule],
+    imports: [
+        TypeOrmModule.forFeature([BatchCableProfile, Batch, CableProfile, BatchFiberTesting, SfgStage]),
+        AuditModule,
+    ],
     controllers: [BatchesController, BatchCableProfilesController, BatchFiberTestingController],
     providers: [BatchesService, BatchCableProfilesService, BatchFiberTestingService],
     exports: [BatchesService, BatchCableProfilesService, BatchFiberTestingService],

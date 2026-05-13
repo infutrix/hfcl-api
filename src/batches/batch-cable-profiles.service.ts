@@ -8,6 +8,7 @@ import { CableType } from '../cable-profiles/entities/cable-type.entity';
 import { Customer } from '../customers/entities/customer.entity';
 import { OtdrDevice } from '../otdr-devices/entities/otdr-device.entity';
 import { Batch } from './entities/batch.entity';
+import { SfgStage } from './entities/sfg-stage.entity';
 import { CreateBatchCableProfileDto } from './dto/create-batch-cable-profile.dto';
 import { UpdateBatchCableProfileDto } from './dto/update-batch-cable-profile.dto';
 import { AuditService } from '../audit/audit.service';
@@ -23,6 +24,7 @@ const batchCableProfileRelations = {
     cable_profile: true,
     operator: true,
     customer: true,
+    sfg_stage: true,
 } as const;
 
 @Injectable()
@@ -34,6 +36,8 @@ export class BatchCableProfilesService {
         private readonly batchRepository: Repository<Batch>,
         @InjectRepository(CableProfile)
         private readonly cableProfileRepository: Repository<CableProfile>,
+        @InjectRepository(SfgStage)
+        private readonly sfgStageRepository: Repository<SfgStage>,
         private readonly auditService: AuditService,
         private readonly batchFiberTestingService: BatchFiberTestingService,
     ) { }
@@ -62,6 +66,15 @@ export class BatchCableProfilesService {
             batchRef = { id: dto.batch_id } as Batch;
         }
 
+        if (dto.stage_id != null) {
+            const stage = await this.sfgStageRepository.findOne({
+                where: { id: dto.stage_id, deleted: false },
+            });
+            if (!stage) {
+                throw new NotFoundException(`SFG stage #${dto.stage_id} not found`);
+            }
+        }
+
         const row = this.batchCableProfileRepository.create({
             drum_number: dto.drum_number,
             fiber_type: dto.fiber_type,
@@ -70,8 +83,9 @@ export class BatchCableProfilesService {
             otdr_device: dto.otdr_device_id != null ? ({ id: dto.otdr_device_id } as OtdrDevice) : undefined,
             cable_profile: dto.cable_profile_id != null ? ({ id: dto.cable_profile_id } as CableProfile) : undefined,
             ...(dto.cable_profile_id != null ? { cable_type } : {}),
-            operator: dto.operator_id != null ? ({ id: dto.operator_id } as User) : undefined,
+            operator: actorId ? ({ id: actorId } as User) : undefined,
             customer: dto.customer_id != null ? ({ id: dto.customer_id } as Customer) : undefined,
+            sfg_stage: dto.stage_id != null ? ({ id: dto.stage_id } as SfgStage) : undefined,
             created_by: actorId ? ({ id: actorId } as User) : undefined,
             modified_by: actorId ? ({ id: actorId } as User) : undefined,
         });
@@ -151,11 +165,25 @@ export class BatchCableProfilesService {
                 row.cable_type = null;
             }
         }
-        if (dto.operator_id !== undefined) {
-            row.operator = dto.operator_id != null ? ({ id: dto.operator_id } as User) : null;
-        }
+    
+        row.operator = actorId ? ({ id: actorId } as User) : null;
+        
         if (dto.customer_id !== undefined) {
             row.customer = dto.customer_id != null ? ({ id: dto.customer_id } as Customer) : null;
+        }
+
+        if (dto.stage_id !== undefined) {
+            if (dto.stage_id != null) {
+                const stage = await this.sfgStageRepository.findOne({
+                    where: { id: dto.stage_id, deleted: false },
+                });
+                if (!stage) {
+                    throw new NotFoundException(`SFG stage #${dto.stage_id} not found`);
+                }
+                row.sfg_stage = { id: dto.stage_id } as SfgStage;
+            } else {
+                row.sfg_stage = null;
+            }
         }
 
         row.modified_by = actorId ? ({ id: actorId } as User) : row.modified_by;

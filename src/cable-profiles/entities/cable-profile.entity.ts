@@ -13,6 +13,11 @@ import { User } from '../../users/entities/user.entity';
 import { CableType } from './cable-type.entity';
 import { CableProfileWavelengthConfig } from './cable-profile-wavelength-config.entity';
 
+import cableProfileColorsJson = require('../cable-profile-colors.data.json');
+
+/** One row from cable-profile-colors.data.json (not a DB column). */
+export type CableProfileColorJsonEntry = (typeof cableProfileColorsJson)['profiles'][number];
+
 export enum CableProfileStatus {
     ACTIVE = 'active',
     INACTIVE = 'inactive',
@@ -58,4 +63,7 @@ export class CableProfile {
 
     @OneToMany(() => CableProfileWavelengthConfig, (config) => config.cable_profile)
     wavelength_configs: CableProfileWavelengthConfig[];
+
+    /** Matched entry from cable-profile-colors.data.json; set by CableProfilesService.findAll / findOne only. */
+    colorProfile?: CableProfileColorJsonEntry | null;
 }
