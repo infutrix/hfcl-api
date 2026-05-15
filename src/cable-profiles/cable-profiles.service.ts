@@ -51,8 +51,8 @@ export class CableProfilesService {
                 const nmById = new Map(cableWavelengths.map((w) => [w.id, w.value]));
                 const configEntities = dto.wavelength_configs.map((wc) =>
                     queryRunner.manager.create(CableProfileWavelengthConfig, {
-                        cable_profile_id: saved.id,
-                        cable_wavelength_id: wc.wavelength_id,
+                        cable_profile: { id: saved.id } as CableProfile,
+                        cable_wavelength: { id: wc.wavelength_id } as CableWavelength,
                         wavelength: nmById.get(wc.wavelength_id)!,
                         gri: wc.gri,
                         min_attenuation: wc.minAttenuation,
@@ -71,7 +71,7 @@ export class CableProfilesService {
                 entity_id: saved.id,
                 new_values: dto as Record<string, any>,
             });
-            return saved;
+            return this.findOne(saved.id);
         } catch (error) {
             await queryRunner.rollbackTransaction();
             throw error;
@@ -113,7 +113,9 @@ export class CableProfilesService {
             const saved = await queryRunner.manager.save(profile);
 
             if (dto.wavelength_configs !== undefined) {
-                await queryRunner.manager.delete(CableProfileWavelengthConfig, { cable_profile_id: id });
+                await queryRunner.manager.delete(CableProfileWavelengthConfig, {
+                    cable_profile: { id },
+                });
                 if (dto.wavelength_configs.length) {
                     const wavelengthIds = [...new Set(dto.wavelength_configs.map((w) => w.wavelength_id))];
                     const cableWavelengths = await queryRunner.manager.find(CableWavelength, {
@@ -125,8 +127,8 @@ export class CableProfilesService {
                     const nmById = new Map(cableWavelengths.map((w) => [w.id, w.value]));
                     const configEntities = dto.wavelength_configs.map((wc) =>
                         queryRunner.manager.create(CableProfileWavelengthConfig, {
-                            cable_profile_id: saved.id,
-                            cable_wavelength_id: wc.wavelength_id,
+                            cable_profile: { id: saved.id } as CableProfile,
+                            cable_wavelength: { id: wc.wavelength_id } as CableWavelength,
                             wavelength: nmById.get(wc.wavelength_id)!,
                             gri: wc.gri,
                             min_attenuation: wc.minAttenuation,
@@ -147,7 +149,7 @@ export class CableProfilesService {
                 old_values: oldValues,
                 new_values: dto as Record<string, any>,
             });
-            return saved;
+            return this.findOne(id);
         } catch (error) {
             await queryRunner.rollbackTransaction();
             throw error;
