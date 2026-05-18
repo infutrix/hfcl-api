@@ -32,6 +32,17 @@ function headerLabelForAttribute(name: string | null): string {
     return ATTRIBUTE_HEADER_LABELS[k] ?? name.trim().toUpperCase();
 }
 
+function fiberNumberHeaderLabel(
+    row?: Pick<BatchFiberTesting, 'attribute1_name' | 'attribute2_name' | 'attribute3_name'>,
+): string {
+    const hasFiberAttribute = row
+        ? [row.attribute1_name, row.attribute2_name, row.attribute3_name].some(
+              (n) => n?.trim().toLowerCase() === 'fiber',
+          )
+        : false;
+    return hasFiberAttribute ? 'FIBER' : 'FIBER NO';
+}
+
 type TubeColors = { innerLayer: string[]; outerLayer: string[] };
 
 type ColorProfileJson = {
@@ -134,7 +145,9 @@ export class BatchFiberTestingService {
     }
 
     private buildTableHeaders(first: BatchFiberTesting | undefined): FiberTestingTableHeaderDto[] {
-        const headers: FiberTestingTableHeaderDto[] = [{ key: 'fiber_number', label: 'FIBER NO' }];
+        const headers: FiberTestingTableHeaderDto[] = [
+            { key: 'fiber_number', label: fiberNumberHeaderLabel(first) },
+        ];
         if (!first) {
             return headers;
         }
@@ -298,7 +311,7 @@ export class BatchFiberTestingService {
                         attribute1_name: 'Strand',
                         attribute1_value: strandColor,
                         attribute2_name: 'Ribbon',
-                        attribute2_value: `Ribbon${ribbon}`,
+                        attribute2_value: `R${ribbon}`,
                         attribute3_name: 'Fiber',
                         attribute3_value: fiberColor,
                         waveLengths: waveLengths.map((w) => ({ ...w })),
@@ -327,7 +340,7 @@ export class BatchFiberTestingService {
                 rows.push({
                     fiber_number: fiber_number++,
                     attribute1_name: 'Ribbon',
-                    attribute1_value: `Ribbon${ribbon}`,
+                    attribute1_value: `R${ribbon}`,
                     attribute2_name: 'Fiber',
                     attribute2_value: fiberColor,
                     attribute3_name: '',
