@@ -21,8 +21,8 @@ import cableProfileColors = require('../cable-profiles/cable-profile-colors.data
 const ATTRIBUTE_HEADER_LABELS: Record<string, string> = {
     tube: 'TUBE COLOR',
     strand: 'STRAND',
-    ribbon: 'RIBBON NO',
-    fiber: 'FIBER COLOR',
+    ribbon: 'RIBBON',
+    fiber: 'FIBER',
     'tube#': 'TUBE #',
 };
 
@@ -30,17 +30,6 @@ function headerLabelForAttribute(name: string | null): string {
     if (!name?.trim()) return '';
     const k = name.trim().toLowerCase();
     return ATTRIBUTE_HEADER_LABELS[k] ?? name.trim().toUpperCase();
-}
-
-function fiberNumberHeaderLabel(
-    row?: Pick<BatchFiberTesting, 'attribute1_name' | 'attribute2_name' | 'attribute3_name'>,
-): string {
-    const hasFiberAttribute = row
-        ? [row.attribute1_name, row.attribute2_name, row.attribute3_name].some(
-              (n) => n?.trim().toLowerCase() === 'fiber',
-          )
-        : false;
-    return hasFiberAttribute ? 'FIBER' : 'FIBER NO';
 }
 
 type TubeColors = { innerLayer: string[]; outerLayer: string[] };
@@ -145,9 +134,7 @@ export class BatchFiberTestingService {
     }
 
     private buildTableHeaders(first: BatchFiberTesting | undefined): FiberTestingTableHeaderDto[] {
-        const headers: FiberTestingTableHeaderDto[] = [
-            { key: 'fiber_number', label: fiberNumberHeaderLabel(first) },
-        ];
+        const headers: FiberTestingTableHeaderDto[] = [{ key: 'fiber_number', label: 'FIBER NO' }];
         if (!first) {
             return headers;
         }
