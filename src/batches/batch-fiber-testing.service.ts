@@ -9,7 +9,9 @@ import { CableProfileWavelengthConfig } from '../cable-profiles/entities/cable-p
 import { CableProfile } from '../cable-profiles/entities/cable-profile.entity';
 import { BatchCableProfile } from './entities/batch-cable-profile.entity';
 import { BatchFiberTesting, FiberWavelengthReading } from './entities/batch-fiber-testing.entity';
+import { FiberTestingAiResponse } from './entities/fiber-testing-ai-response.entity';
 import { FiberTestingMatrixRowDto } from './dto/fiber-testing-matrix.dto';
+import { UpdateBatchFiberTestingDto } from './dto/update-batch-fiber-testing.dto';
 import {
     FiberTestingSavedTableDto,
     FiberTestingTableHeaderDto,
@@ -178,6 +180,7 @@ export class BatchFiberTestingService {
             e.attribute3_name = row.attribute3_name || null;
             e.attribute3_value = row.attribute3_value || null;
             e.fiber_wavelengths = row.waveLengths.map((w) => ({ ...w }));
+            e.testing_counter = 0;
             e.status = true;
             return e;
         });
@@ -373,5 +376,59 @@ export class BatchFiberTestingService {
             }
         }
         return rows;
+    }
+
+    /** Update wavelength readings, bump testing_counter, and store AI response. */
+    async updateBatchFiberTesting(id: number, dto: UpdateBatchFiberTestingDto): Promise<BatchFiberTesting> {
+        const row = await this.batchFiberTestingRepository.findOne({
+            where: { id },
+            relations: { batch_cable_profile: true },
+        });
+        if (!row) {
+            throw new NotFoundException(`Batch fiber testing #${id} not found`);
+        }
+
+        row.fiber_wavelengths = dto.fiber_wavelengths.map((w) => ({
+            wavelength_nm: String(w.wavelength_nm),
+            measured_value: w.measured_value ?? '',
+        }));
+        row.testing_counter = (row.testing_counter ?? 0) + 1;
+
+        const parsedAiResponse =
+            dto.ai_response !== undefined && dto.ai_response !== null && dto.ai_response !== ''
+                ? this.parseAiResponseJson(dto.ai_response)
+                : null;
+
+        await this.dataSource.transaction(async (manager) => {
+            await manager.save(BatchFiberTesting, row);
+
+            if (parsedAiResponse !== null) {
+                const aiRow = manager.create(FiberTestingAiResponse, {
+                    batch_cable_profile: row.batch_cable_profile
+                        ? ({ id: row.batch_cable_profile.id } as BatchCableProfile)
+                        : null,
+                    batch_fiber_testing: { id: row.id } as BatchFiberTesting,
+                    ai_response: parsedAiResponse,
+                });
+                await manager.save(FiberTestingAiResponse, aiRow);
+            }
+        });
+
+        return this.batchFiberTestingRepository.findOneOrFail({ where: { id } });
+    }
+
+    private parseAiResponseJson(raw: string): Record<string, unknown> | unknown[] {
+        try {
+            const parsed: unknown = JSON.parse(raw);
+            if (parsed === null || typeof parsed !== 'object') {
+                throw new BadRequestException('ai_response must be a valid JSON object or array');
+            }
+            return parsed as Record<string, unknown> | unknown[];
+        } catch (error) {
+            if (error instanceof BadRequestException) {
+                throw error;
+            }
+            throw new BadRequestException('ai_response must be valid JSON');
+        }
     }
 }

@@ -31,6 +31,9 @@ export class BatchFiberTesting {
     @Column({ type: 'int', nullable: true, default: 0 })
     fiber_number: number;
 
+    @Column({ type: 'int', nullable: true, default: 0 })
+    testing_counter: number;
+
     @Column({ type: 'varchar', length: 255, nullable: true, default: null })
     attribute1_name: string | null;
 

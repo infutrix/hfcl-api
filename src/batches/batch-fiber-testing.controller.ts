@@ -1,8 +1,10 @@
 import {
+    Body,
     Controller,
     Get,
     Param,
     ParseIntPipe,
+    Put,
     UseGuards,
 } from '@nestjs/common';
 import {
@@ -14,7 +16,9 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { BatchFiberTestingService } from './batch-fiber-testing.service';
+import { UpdateBatchFiberTestingDto } from './dto/update-batch-fiber-testing.dto';
 import { FiberTestingSavedTableDto } from './dto/fiber-testing-saved-table.dto';
+import { BatchFiberTesting } from './entities/batch-fiber-testing.entity';
 
 @ApiTags('Batch fiber testing')
 @ApiBearerAuth('access-token')
@@ -37,5 +41,22 @@ export class BatchFiberTestingController {
         @Param('batchCableProfileId', ParseIntPipe) batchCableProfileId: number,
     ): Promise<FiberTestingSavedTableDto> {
         return this.batchFiberTestingService.findSavedByBatchCableProfileId(batchCableProfileId);
+    }
+
+    @Put(':id')
+    @ApiOperation({
+        summary: 'Update fiber testing row (wavelengths + AI response)',
+        description:
+            'Updates `fiber_wavelengths` for the batch fiber testing row, increments `testing_counter` by 1, and appends `ai_response` to `fiber_testing_ai_response`.',
+    })
+    @ApiParam({ name: 'id', type: Number, description: 'batch_fiber_testing.id' })
+    @ApiResponse({ status: 200, description: 'Updated row.', type: BatchFiberTesting })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @ApiResponse({ status: 404, description: 'Batch fiber testing row not found.' })
+    async update(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() dto: UpdateBatchFiberTestingDto,
+    ): Promise<BatchFiberTesting> {
+        return this.batchFiberTestingService.updateBatchFiberTesting(id, dto);
     }
 }
