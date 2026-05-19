@@ -1,11 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
+import { IsString } from 'class-validator';
 import { FiberWavelengthReading } from '../entities/batch-fiber-testing.entity';
 
 export class FiberWavelengthReadingApiDto {
     @ApiProperty({ example: '1310' })
+    @Transform(({ value }) => (value == null ? value : String(value)))
+    @IsString()
     wavelength_nm: string;
 
     @ApiProperty({ example: '' })
+    @Transform(({ value }) => (value == null ? value : String(value)))
+    @IsString()
     measured_value: string;
 }
 

@@ -394,10 +394,7 @@ export class BatchFiberTestingService {
         }));
         row.testing_counter = (row.testing_counter ?? 0) + 1;
 
-        const parsedAiResponse =
-            dto.ai_response !== undefined && dto.ai_response !== null && dto.ai_response !== ''
-                ? this.parseAiResponseJson(dto.ai_response)
-                : null;
+        const parsedAiResponse = this.normalizeAiResponse(dto.ai_response);
 
         await this.dataSource.transaction(async (manager) => {
             await manager.save(BatchFiberTesting, row);
@@ -415,6 +412,21 @@ export class BatchFiberTestingService {
         });
 
         return this.batchFiberTestingRepository.findOneOrFail({ where: { id } });
+    }
+
+    private normalizeAiResponse(
+        raw: string | Record<string, unknown> | undefined,
+    ): Record<string, unknown> | unknown[] | null {
+        if (raw === undefined || raw === null || raw === '') {
+            return null;
+        }
+        if (typeof raw === 'string') {
+            return this.parseAiResponseJson(raw);
+        }
+        if (typeof raw === 'object') {
+            return raw as Record<string, unknown>;
+        }
+        throw new BadRequestException('ai_response must be a JSON string or object');
     }
 
     private parseAiResponseJson(raw: string): Record<string, unknown> | unknown[] {

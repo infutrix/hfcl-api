@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Allow, IsArray, IsOptional, ValidateNested } from 'class-validator';
 import { FiberWavelengthReadingApiDto } from './fiber-testing-matrix.dto';
 
 export class UpdateBatchFiberTestingDto {
@@ -18,10 +18,11 @@ export class UpdateBatchFiberTestingDto {
     fiber_wavelengths: FiberWavelengthReadingApiDto[];
 
     @ApiPropertyOptional({
-        example: '{"result":"pass","confidence":0.98}',
-        description: 'JSON string; parsed and stored as JSON in fiber_testing_ai_response.',
+        oneOf: [{ type: 'string' }, { type: 'object' }],
+        example: '{"status":"success","fiber":{"color":"Blue","confidence":0.97}}',
+        description: 'JSON string or object; stored as JSON in fiber_testing_ai_response.',
     })
+    @Allow()
     @IsOptional()
-    @IsString()
-    ai_response?: string;
+    ai_response?: string | Record<string, unknown>;
 }
