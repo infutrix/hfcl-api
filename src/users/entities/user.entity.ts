@@ -8,6 +8,7 @@ import {
     JoinColumn,
     ManyToOne,
     PrimaryGeneratedColumn,
+    RelationId,
     UpdateDateColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -40,14 +41,18 @@ export class User {
     @Column({ type: 'varchar', length: 255 })
     password: string;
 
-    //need to change this to relation with user role table
-    @Column({ name: 'role_id', type: 'int', nullable: true })
-    role_id: number;
+    // FK to user_roles — assign via userRole relation in create/update.
+    @ManyToOne(() => UserRole, { nullable: true, eager: false })
+    @JoinColumn({ name: 'role_id' })
+    userRole: UserRole | null;
+
+    @RelationId((user: User) => user.userRole)
+    role_id: number | null;
 
     @Index()
     @ManyToOne(() => Plant, { nullable: true, onDelete: 'SET NULL' })
     @JoinColumn({ name: 'plant_id' })
-    plant: Plant;
+    plant: Plant | null;
 
     @Column({
         type: 'enum',
@@ -64,10 +69,6 @@ export class User {
 
     @UpdateDateColumn({ name: 'modified_at' })
     modified_at: Date;
-
-    @ManyToOne(() => UserRole, { nullable: true, eager: false })
-    @JoinColumn({ name: 'role_id' })
-    userRole: UserRole;
 
     @BeforeInsert()
     @BeforeUpdate()

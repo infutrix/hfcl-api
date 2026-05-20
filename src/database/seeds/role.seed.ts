@@ -6,11 +6,11 @@ import { UserRole } from '../../users/entities/user-role.entity';
 dotenv.config();
 
 const roles = [
-    { role: 'Plant Operator', identifier: 'ROLE_PLANT_OPERATOR' },
-    { role: 'QC Inspector', identifier: 'ROLE_QC_INSPECTOR' },
-    { role: 'Plant Supervisor', identifier: 'ROLE_PLANT_SUPERVISOR' },
-    { role: 'IT Admin', identifier: 'ROLE_IT_ADMIN' },
-    { role: 'Central Auditor', identifier: 'ROLE_CENTRAL_AUDITOR' },
+    { role: 'Plant Operator', identifier: 'Plant_Operator' },
+    { role: 'QC Inspector', identifier: 'QC_Inspector' },
+    { role: 'Plant Supervisor', identifier: 'Plant_Supervisor' },
+    { role: 'IT Admin', identifier: 'Admin' },
+    { role: 'Central Auditor', identifier: 'Central_Auditor' },
 ];
 
 async function seed() {

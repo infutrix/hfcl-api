@@ -46,7 +46,7 @@ async function seed() {
         last_name: 'Admin',
         email,
         password: hashedPassword,
-        role_id: itAdminRole.id,
+        userRole: { id: itAdminRole.id },
         status: UserStatus.ACTIVE,
         deleted: false,
     });

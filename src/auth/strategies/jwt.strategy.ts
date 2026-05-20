@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Repository } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { UserRole } from '../../users/entities/user-role.entity';
 
 export interface JwtPayload {
     sub: number;
@@ -19,6 +20,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         config: ConfigService,
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
+        @InjectRepository(UserRole)
+        private readonly userRoleRepository: Repository<UserRole>,
     ) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -35,6 +38,16 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         if (!user) {
             throw new UnauthorizedException('Token is invalid or user no longer exists');
         }
+
+        if (!user.userRole) {
+            const roleId = user.role_id ?? payload.role_id;
+            if (roleId != null) {
+                user.userRole = await this.userRoleRepository.findOne({
+                    where: { id: roleId },
+                });
+            }
+        }
+
         return user;
     }
 }

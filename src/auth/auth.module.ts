@@ -9,6 +9,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { UsersModule } from '../users/users.module';
 import { AuditModule } from '../audit/audit.module';
 import { User } from '../users/entities/user.entity';
+import { UserRole } from '../users/entities/user-role.entity';
 
 @Module({
     imports: [
@@ -23,7 +24,7 @@ import { User } from '../users/entities/user.entity';
                 },
             }),
         }),
-        TypeOrmModule.forFeature([User]),
+        TypeOrmModule.forFeature([User, UserRole]),
         UsersModule,
         AuditModule,
     ],

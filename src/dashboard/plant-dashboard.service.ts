@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
+import { UserRoleIdentifier } from '../users/user-role.constants';
 import {
     BatchCableProfile,
     BatchCableProfileStatus,
@@ -48,7 +49,7 @@ export class PlantDashboardService {
                     where: {
                         deleted: false,
                         plant: { id: plantId },
-                        userRole: { identifier: 'ROLE_PLANT_OPERATOR' },
+                        userRole: { identifier: UserRoleIdentifier.PLANT_OPERATOR },
                     },
                 }),
                 this.batchCableProfileRepository.count({

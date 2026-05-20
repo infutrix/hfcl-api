@@ -7,16 +7,21 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Not } from 'typeorm';
 import { User } from './entities/user.entity';
+import { UserRole } from './entities/user-role.entity';
+import { Plant } from '../plants/entities/plant.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuditService } from '../audit/audit.service';
 import { AuditAction } from '../audit/entities/audit-log.entity';
+import { UserRoleIdentifier } from './user-role.constants';
 
 @Injectable()
 export class UsersService {
     constructor(
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
+        @InjectRepository(UserRole)
+        private readonly userRoleRepository: Repository<UserRole>,
         private readonly auditService: AuditService,
     ) { }
 
@@ -29,7 +34,12 @@ export class UsersService {
         if (existing) {
             throw new ConflictException(`Email "${dto.email}" is already registered`);
         }
-        const user = this.userRepository.create(dto);
+        const { role_id, plant_id, ...rest } = dto;
+        const user = this.userRepository.create({
+            ...rest,
+            ...(role_id != null ? { userRole: { id: role_id } as UserRole } : {}),
+            ...(plant_id != null ? { plant: { id: plant_id } as Plant } : {}),
+        });
         const saved = await this.userRepository.save(user);
         await this.auditService.logAudit({
             user_id: actorId,
@@ -42,13 +52,23 @@ export class UsersService {
     }
 
     async findAll(actor: User | null): Promise<User[]> {
-        if (!actor?.userRole) {
+        if (!actor?.id) {
             throw new ForbiddenException('You do not have permission to list users');
         }
 
-        const roleIdentifier = actor.userRole.identifier;
+        let roleIdentifier = actor.userRole?.identifier ?? null;
+        if (!roleIdentifier && actor.role_id != null) {
+            const role = await this.userRoleRepository.findOne({
+                where: { id: actor.role_id },
+            });
+            roleIdentifier = role?.identifier ?? null;
+        }
 
-        if (roleIdentifier === 'ROLE_IT_ADMIN') {
+        if (!roleIdentifier) {
+            throw new ForbiddenException('You do not have permission to list users');
+        }
+
+        if (roleIdentifier === UserRoleIdentifier.IT_ADMIN) {
             return this.userRepository.find({
                 where: { deleted: false, id: Not(actor.id) },
                 relations: ['userRole', 'plant'],
@@ -56,12 +76,12 @@ export class UsersService {
             });
         }
 
-        if (roleIdentifier === 'ROLE_PLANT_SUPERVISOR') {
+        if (roleIdentifier === UserRoleIdentifier.PLANT_SUPERVISOR) {
             return this.userRepository.find({
                 where: {
                     deleted: false,
                     id: Not(actor.id),
-                    userRole: { identifier: 'ROLE_PLANT_OPERATOR' },
+                    userRole: { identifier: UserRoleIdentifier.PLANT_OPERATOR },
                 },
                 relations: ['userRole', 'plant'],
                 order: { id: 'ASC' },
@@ -88,7 +108,14 @@ export class UsersService {
     async update(id: number, dto: UpdateUserDto, actorId?: number): Promise<User> {
         const user = await this.findOneEntity(id);
         const { password: _pw, ...oldValues } = user;
-        Object.assign(user, dto);
+        const { role_id, plant_id, ...rest } = dto;
+        Object.assign(user, rest);
+        if (role_id !== undefined) {
+            user.userRole = role_id != null ? ({ id: role_id } as UserRole) : null;
+        }
+        if (plant_id !== undefined) {
+            user.plant = plant_id != null ? ({ id: plant_id } as Plant) : null;
+        }
         await this.userRepository.save(user);
         await this.auditService.logAudit({
             user_id: actorId,

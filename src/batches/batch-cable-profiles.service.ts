@@ -14,6 +14,7 @@ import { CreateBatchCableProfileDto } from './dto/create-batch-cable-profile.dto
 import { UpdateBatchCableProfileDto } from './dto/update-batch-cable-profile.dto';
 import { AuditService } from '../audit/audit.service';
 import { AuditAction } from '../audit/entities/audit-log.entity';
+import { UserRoleIdentifier } from '../users/user-role.constants';
 
 import { BatchFiberTestingService } from './batch-fiber-testing.service';
 
@@ -115,7 +116,7 @@ export class BatchCableProfilesService {
     }
 
     async findAll(actor: User | null): Promise<BatchCableProfile[]> {
-        const isAdmin = actor?.userRole?.identifier === 'ROLE_IT_ADMIN';
+        const isAdmin = actor?.userRole?.identifier === UserRoleIdentifier.IT_ADMIN;
 
         if (isAdmin) {
             return this.batchCableProfileRepository.find({
