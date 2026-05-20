@@ -252,21 +252,21 @@
                     "Yellow"
                 ],
                 "outerLayer": [
+                    "Blue",
+                    "Orange",
+                    "Green",
+                    "Brown",
+                    "Slate",
+                    "White",
+                    "Red",
+                    "Black",
+                    "Yellow",      
                     "Violet",
                     "Pink",
                     "Aqua",
                     "Blue-Strip",
                     "Orange-Strip",
-                    "Green-Strip",
-                    "Brown-Strip",
-                    "Slate-Strip",
-                    "White-Strip",
-                    "Red-Strip",
-                    "Black-Strip",
-                    "Yellow-Strip",
-                    "Violet-Strip",
-                    "Pink-Strip",
-                    "Aqua-Strip"
+                    "Green-Strip"
                 ]
             },
             "fiberColors": [

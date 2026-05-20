@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { BatchCableProfileStatus } from '../entities/batch-cable-profile.entity';
 
 export class CreateBatchCableProfileDto {
     @ApiPropertyOptional({ example: 1, description: 'Batch ID — links to batches.id (optional)' })
@@ -39,5 +40,14 @@ export class CreateBatchCableProfileDto {
     @IsString()
     @IsNotEmpty()
     fiber_type: string;
+
+    @ApiPropertyOptional({
+        enum: BatchCableProfileStatus,
+        example: BatchCableProfileStatus.PENDING,
+        description: '0 = pending, 1 = in-progress, 2 = completed',
+    })
+    @IsOptional()
+    @IsEnum(BatchCableProfileStatus)
+    status?: BatchCableProfileStatus;
 
 }

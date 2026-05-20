@@ -11,6 +11,7 @@ import {
     UpdateDateColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { Exclude } from 'class-transformer';
 import { UserRole } from './user-role.entity';
 import { Plant } from 'src/plants/entities/plant.entity';
 
@@ -35,6 +36,7 @@ export class User {
     @Column({ type: 'varchar', length: 255, unique: true })
     email: string;
 
+    @Exclude()
     @Column({ type: 'varchar', length: 255 })
     password: string;
 

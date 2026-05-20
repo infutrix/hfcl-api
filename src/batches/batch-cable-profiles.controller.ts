@@ -42,15 +42,18 @@ export class BatchCableProfilesController {
         @Body() dto: CreateBatchCableProfileDto,
         @CurrentUser() user: User | null,
     ): Promise<BatchCableProfile> {
-        return this.batchCableProfilesService.create(dto, user?.id);
+        return this.batchCableProfilesService.create(dto, user);
     }
 
     @Get()
-    @ApiOperation({ summary: 'List batch cable profiles (not soft-deleted)' })
+    @ApiOperation({
+        summary: 'List batch cable profiles (not soft-deleted)',
+        description: 'IT Admin: all sessions. Other roles: filtered by token user plant_id.',
+    })
     @ApiResponse({ status: 200, description: 'List returned.', type: [BatchCableProfile] })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
-    async findAll(): Promise<BatchCableProfile[]> {
-        return this.batchCableProfilesService.findAll();
+    async findAll(@CurrentUser() user: User | null): Promise<BatchCableProfile[]> {
+        return this.batchCableProfilesService.findAll(user);
     }
 
     @Get(':id')

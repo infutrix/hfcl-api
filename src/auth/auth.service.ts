@@ -76,14 +76,22 @@ export class AuthService {
             user_agent: userAgent,
         });
 
-        const payload = { sub: user.id, email: user.email, role_id: user.role_id ?? null };
+        const plant_id = user.plant?.id ?? null;
+
+        const payload = {
+            sub: user.id,
+            email: user.email,
+            role_id: user.role_id ?? null,
+            plant_id,
+        };
         const access_token = this.jwtService.sign(payload);
-        const { password: _pw, deleted: _del, userRole, ...userProfile } = user as any;
+        const { password: _pw, deleted: _del, userRole, plant: _plant, ...userProfile } = user as any;
 
         return {
             access_token,
             user: {
                 ...userProfile,
+                plant_id,
                 role_name: userRole?.role ?? null,
                 role_identifier: userRole?.identifier ?? null,
             },

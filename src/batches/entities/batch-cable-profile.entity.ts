@@ -17,6 +17,13 @@ import { OtdrDevice } from '../../otdr-devices/entities/otdr-device.entity';
 import { Batch } from './batch.entity';
 import { SfgStage } from './sfg-stage.entity';
 
+/** 0 = pending, 1 = in-progress, 2 = completed */
+export enum BatchCableProfileStatus {
+    PENDING = 0,
+    IN_PROGRESS = 1,
+    COMPLETED = 2,
+}
+
 @Entity('batch_cable_profiles')
 export class BatchCableProfile {
     @PrimaryGeneratedColumn()
@@ -71,8 +78,13 @@ export class BatchCableProfile {
     @Column({ type: 'varchar' })
     fiber_type: string;
 
-    @Column({ name: 'status', type: 'boolean', default: true })
-    status: boolean;
+    @Column({
+        name: 'status',
+        type: 'tinyint',
+        default: BatchCableProfileStatus.PENDING,
+        comment: '0=pending, 1=in-progress, 2=completed',
+    })
+    status: BatchCableProfileStatus;
 
     @Column({ type: 'boolean', default: false })
     deleted: boolean;

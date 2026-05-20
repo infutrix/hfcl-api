@@ -17,6 +17,13 @@ export class UserProfileDto {
     @ApiProperty({ example: 1, nullable: true })
     role_id: number;
 
+    @ApiProperty({
+        example: 1,
+        nullable: true,
+        description: 'Linked plant id; null when user has no plant assigned',
+    })
+    plant_id: number | null;
+
     @ApiProperty({ example: 'IT Admin', nullable: true })
     role_name: string;
 

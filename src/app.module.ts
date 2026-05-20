@@ -11,6 +11,7 @@ import { OtdrDevicesModule } from './otdr-devices/otdr-devices.module';
 import { CableProfilesModule } from './cable-profiles/cable-profiles.module';
 import { CustomersModule } from './customers/customers.module';
 import { BatchesModule } from './batches/batches.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { BatchesModule } from './batches/batches.module';
     CableProfilesModule,
     CustomersModule,
     BatchesModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],

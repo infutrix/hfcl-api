@@ -10,6 +10,7 @@ export interface JwtPayload {
     sub: number;
     email: string;
     role_id: number | null;
+    plant_id: number | null;
 }
 
 @Injectable()
@@ -29,7 +30,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     async validate(payload: JwtPayload): Promise<User> {
         const user = await this.userRepository.findOne({
             where: { id: payload.sub, deleted: false },
-            relations: ['userRole'],
+            relations: ['userRole', 'plant'],
         });
         if (!user) {
             throw new UnauthorizedException('Token is invalid or user no longer exists');

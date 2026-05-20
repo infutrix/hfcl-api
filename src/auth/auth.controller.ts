@@ -67,7 +67,6 @@ export class AuthController {
     @ApiResponse({ status: 200, description: 'Current user profile returned.' })
     @ApiResponse({ status: 401, description: 'Unauthorized – missing or invalid token.' })
     getProfile(@Req() req: any) {
-        const { password: _pw, deleted: _del, ...profile } = req.user;
-        return profile;
+        return req.user;
     }
 }

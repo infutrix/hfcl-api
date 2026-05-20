@@ -1,12 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { BatchCableProfile } from './entities/batch-cable-profile.entity';
+import { BatchCableProfile, BatchCableProfileStatus } from './entities/batch-cable-profile.entity';
 import { User } from '../users/entities/user.entity';
 import { CableProfile } from '../cable-profiles/entities/cable-profile.entity';
 import { CableType } from '../cable-profiles/entities/cable-type.entity';
 import { Customer } from '../customers/entities/customer.entity';
 import { OtdrDevice } from '../otdr-devices/entities/otdr-device.entity';
+import { Plant } from '../plants/entities/plant.entity';
 import { Batch } from './entities/batch.entity';
 import { SfgStage } from './entities/sfg-stage.entity';
 import { CreateBatchCableProfileDto } from './dto/create-batch-cable-profile.dto';
@@ -42,7 +43,9 @@ export class BatchCableProfilesService {
         private readonly batchFiberTestingService: BatchFiberTestingService,
     ) { }
 
-    async create(dto: CreateBatchCableProfileDto, actorId?: number): Promise<BatchCableProfile> {
+    async create(dto: CreateBatchCableProfileDto, actor?: User | null): Promise<BatchCableProfile> {
+        const actorId = actor?.id;
+        const plantId = actor?.plant?.id ?? null;
         let cable_type: CableType | null | undefined;
         if (dto.cable_profile_id != null) {
             const profile = await this.cableProfileRepository.findOne({
@@ -80,12 +83,14 @@ export class BatchCableProfilesService {
             fiber_type: dto.fiber_type,
             batch: batchRef,
             batch_name,
+            plant: plantId != null ? ({ id: plantId } as Plant) : undefined,
             otdr_device: dto.otdr_device_id != null ? ({ id: dto.otdr_device_id } as OtdrDevice) : undefined,
             cable_profile: dto.cable_profile_id != null ? ({ id: dto.cable_profile_id } as CableProfile) : undefined,
             ...(dto.cable_profile_id != null ? { cable_type } : {}),
             operator: actorId ? ({ id: actorId } as User) : undefined,
             customer: dto.customer_id != null ? ({ id: dto.customer_id } as Customer) : undefined,
             sfg_stage: dto.stage_id != null ? ({ id: dto.stage_id } as SfgStage) : undefined,
+            status: dto.status ?? BatchCableProfileStatus.PENDING,
             created_by: actorId ? ({ id: actorId } as User) : undefined,
             modified_by: actorId ? ({ id: actorId } as User) : undefined,
         });
@@ -109,9 +114,24 @@ export class BatchCableProfilesService {
         return this.findOne(saved.id);
     }
 
-    async findAll(): Promise<BatchCableProfile[]> {
+    async findAll(actor: User | null): Promise<BatchCableProfile[]> {
+        const isAdmin = actor?.userRole?.identifier === 'ROLE_IT_ADMIN';
+
+        if (isAdmin) {
+            return this.batchCableProfileRepository.find({
+                where: { deleted: false },
+                relations: { ...batchCableProfileRelations },
+                order: { id: 'ASC' },
+            });
+        }
+
+        const plantId = actor?.plant?.id ?? null;
+        if (plantId == null) {
+            return [];
+        }
+
         return this.batchCableProfileRepository.find({
-            where: { deleted: false },
+            where: { deleted: false, plant: { id: plantId } },
             relations: { ...batchCableProfileRelations },
             order: { id: 'ASC' },
         });
@@ -184,6 +204,10 @@ export class BatchCableProfilesService {
             } else {
                 row.sfg_stage = null;
             }
+        }
+
+        if (dto.status !== undefined) {
+            row.status = dto.status;
         }
 
         row.modified_by = actorId ? ({ id: actorId } as User) : row.modified_by;

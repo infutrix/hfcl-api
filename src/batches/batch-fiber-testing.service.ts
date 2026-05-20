@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { CableProfileWavelengthConfig } from '../cable-profiles/entities/cable-profile-wavelength-config.entity';
 import { CableProfile } from '../cable-profiles/entities/cable-profile.entity';
-import { BatchCableProfile } from './entities/batch-cable-profile.entity';
+import { BatchCableProfile, BatchCableProfileStatus } from './entities/batch-cable-profile.entity';
 import { BatchFiberTesting, FiberWavelengthReading } from './entities/batch-fiber-testing.entity';
 import { FiberTestingAiResponse } from './entities/fiber-testing-ai-response.entity';
 import { FiberTestingMatrixRowDto } from './dto/fiber-testing-matrix.dto';
@@ -398,6 +398,15 @@ export class BatchFiberTestingService {
 
         await this.dataSource.transaction(async (manager) => {
             await manager.save(BatchFiberTesting, row);
+
+            if (
+                row.batch_cable_profile &&
+                row.batch_cable_profile.status === BatchCableProfileStatus.PENDING
+            ) {
+                await manager.update(BatchCableProfile, row.batch_cable_profile.id, {
+                    status: BatchCableProfileStatus.IN_PROGRESS,
+                });
+            }
 
             if (parsedAiResponse !== null) {
                 const aiRow = manager.create(FiberTestingAiResponse, {

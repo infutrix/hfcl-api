@@ -53,13 +53,15 @@ export class UsersController {
     @Get()
     @ApiOperation({
         summary: 'Get all users',
-        description: 'Returns all non-deleted users, including their assigned role.',
+        description:
+            'IT Admin: all non-deleted users. Plant Supervisor: Plant Operator users only. Other roles: forbidden.',
     })
     @ApiResponse({ status: 200, description: 'List of users returned successfully.', type: [User] })
     @ApiResponse({ status: 401, description: 'Unauthorized – missing or invalid token.' })
-    async findAll(): Promise<User[]> {
+    @ApiResponse({ status: 403, description: 'Forbidden – insufficient role to list users.' })
+    async findAll(@CurrentUser() user: User | null): Promise<User[]> {
         try {
-            return await this.usersService.findAll();
+            return await this.usersService.findAll(user);
         } catch (error) {
             console.error('[UsersController] findAll error:', error);
             throw error;
