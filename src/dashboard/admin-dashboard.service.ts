@@ -20,12 +20,6 @@ export class AdminDashboardService {
         private readonly batchCableProfileRepository: Repository<BatchCableProfile>,
     ) { }
 
-    getOverview() {
-        return {
-            message: 'Admin dashboard is ready',
-        };
-    }
-
     async getStats(): Promise<AdminDashboardStatsDto> {
         const [
             total_users,
