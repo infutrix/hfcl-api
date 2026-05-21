@@ -71,19 +71,21 @@ export class UsersService {
         if (roleIdentifier === UserRoleIdentifier.IT_ADMIN) {
             return this.userRepository.find({
                 where: { deleted: false, id: Not(actor.id) },
-                relations: ['userRole', 'plant'],
+                relations: { userRole: true, plant: true },
                 order: { id: 'ASC' },
             });
         }
 
         if (roleIdentifier === UserRoleIdentifier.PLANT_SUPERVISOR) {
+            const plantId = actor.plant?.id ?? null;
             return this.userRepository.find({
                 where: {
                     deleted: false,
                     id: Not(actor.id),
                     userRole: { identifier: UserRoleIdentifier.PLANT_OPERATOR },
+                    ...(plantId != null ? { plant: { id: plantId } } : {}),
                 },
-                relations: ['userRole', 'plant'],
+                relations: { userRole: true, plant: true },
                 order: { id: 'ASC' },
             });
         }
@@ -99,7 +101,7 @@ export class UsersService {
     private async findOneEntity(id: number): Promise<User> {
         const user = await this.userRepository.findOne({
             where: { id, deleted: false },
-            relations: ['userRole'],
+            relations: { userRole: true, plant: true },
         });
         if (!user) throw new NotFoundException(`User #${id} not found`);
         return user;
