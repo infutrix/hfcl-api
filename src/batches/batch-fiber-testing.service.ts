@@ -132,6 +132,7 @@ export class BatchFiberTestingService {
             const nm = String(c.cable_wavelength.value);
             headers.push({ key: `wavelength:${nm}`, label: `${nm}(nm)` });
         }
+        headers.push({ key: 'testing_counter', label: 'Test Count' });
         return headers;
     }
 
@@ -160,6 +161,7 @@ export class BatchFiberTestingService {
                 label: `${w.wavelength_nm}(nm)`,
             });
         }
+        headers.push({ key: 'testing_counter', label: 'Test Count' });
         return headers;
     }
 

@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { BatchCableProfile } from '../entities/batch-cable-profile.entity';
 import { BatchFiberTesting } from '../entities/batch-fiber-testing.entity';
 
-/** One UI column: `key` matches row fields (`fiber_number`, `attribute1_value`, …, `wavelength:1310`). */
+/** One UI column: `key` matches row fields (`fiber_number`, `attribute1_value`, …, `wavelength:1310`, `testing_counter`). */
 export class FiberTestingTableHeaderDto {
     @ApiProperty({ example: 'fiber_number', description: 'Stable key for binding cells' })
     key: string;
