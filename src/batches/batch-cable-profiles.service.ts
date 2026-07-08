@@ -17,17 +17,9 @@ import { AuditAction } from '../audit/entities/audit-log.entity';
 import { UserRoleIdentifier } from '../users/user-role.constants';
 
 import { BatchFiberTestingService } from './batch-fiber-testing.service';
+import { batchCableProfileListRelations } from './batch-cable-profile.relations';
 
-const batchCableProfileRelations = {
-    plant: true,
-    batch: true,
-    cable_type: true,
-    otdr_device: true,
-    cable_profile: true,
-    operator: true,
-    customer: true,
-    sfg_stage: true,
-} as const;
+const batchCableProfileRelations = batchCableProfileListRelations;
 
 @Injectable()
 export class BatchCableProfilesService {
@@ -79,6 +71,11 @@ export class BatchCableProfilesService {
             }
         }
 
+        const existing = await this.findExistingBySessionKeys(dto);
+        if (existing) {
+            return this.findOne(existing.id);
+        }
+
         const row = this.batchCableProfileRepository.create({
             drum_number: dto.drum_number,
             fiber_type: dto.fiber_type,
@@ -86,6 +83,7 @@ export class BatchCableProfilesService {
             batch_name,
             plant: plantId != null ? ({ id: plantId } as Plant) : undefined,
             otdr_device: dto.otdr_device_id != null ? ({ id: dto.otdr_device_id } as OtdrDevice) : undefined,
+            otdr_length_km: dto.otdr_length_km ?? null,
             cable_profile: dto.cable_profile_id != null ? ({ id: dto.cable_profile_id } as CableProfile) : undefined,
             ...(dto.cable_profile_id != null ? { cable_type } : {}),
             operator: actorId ? ({ id: actorId } as User) : undefined,
@@ -170,6 +168,9 @@ export class BatchCableProfilesService {
         if (dto.otdr_device_id !== undefined) {
             row.otdr_device = dto.otdr_device_id != null ? ({ id: dto.otdr_device_id } as OtdrDevice) : null;
         }
+        if (dto.otdr_length_km !== undefined) {
+            row.otdr_length_km = dto.otdr_length_km ?? null;
+        }
         if (dto.cable_profile_id !== undefined) {
             if (dto.cable_profile_id != null) {
                 const profile = await this.cableProfileRepository.findOne({
@@ -235,5 +236,41 @@ export class BatchCableProfilesService {
             entity_name: 'batch_cable_profiles',
             entity_id: id,
         });
+    }
+
+    private async findExistingBySessionKeys(
+        dto: CreateBatchCableProfileDto,
+    ): Promise<BatchCableProfile | null> {
+        const qb = this.batchCableProfileRepository
+            .createQueryBuilder('bcp')
+            .where('bcp.deleted = :deleted', { deleted: false });
+
+        if (dto.batch_id != null) {
+            qb.andWhere('bcp.batch_id = :batchId', { batchId: dto.batch_id });
+        } else {
+            qb.andWhere('bcp.batch_id IS NULL');
+        }
+
+        if (dto.otdr_device_id != null) {
+            qb.andWhere('bcp.otdr_device_id = :otdrDeviceId', { otdrDeviceId: dto.otdr_device_id });
+        } else {
+            qb.andWhere('bcp.otdr_device_id IS NULL');
+        }
+
+        if (dto.cable_profile_id != null) {
+            qb.andWhere('bcp.cable_profile_id = :cableProfileId', {
+                cableProfileId: dto.cable_profile_id,
+            });
+        } else {
+            qb.andWhere('bcp.cable_profile_id IS NULL');
+        }
+
+        if (dto.stage_id != null) {
+            qb.andWhere('bcp.sfg_stage_id = :sfgStageId', { sfgStageId: dto.stage_id });
+        } else {
+            qb.andWhere('bcp.sfg_stage_id IS NULL');
+        }
+
+        return qb.getOne();
     }
 }

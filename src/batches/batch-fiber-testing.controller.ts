@@ -31,7 +31,7 @@ export class BatchFiberTestingController {
     @ApiOperation({
         summary: 'Saved fiber testing grid (headers + rows)',
         description:
-            'Returns `headers`, `rows`, `batch_cable_profile` (nested `cable_profile` with `wavelength_configs` / `cable_type`, plus plant, batch, OTDR, operator, customer), and `colorProfile` (match from cable-profile-colors.data.json, or null). If there are no `rows` yet, `headers` still includes wavelength columns from the linked cable profile configs.',
+            'Returns `headers`, `rows`, `batch_cable_profile` (including `wavelength_testing`, `physical_params`, nested `cable_profile` with `wavelength_configs` / `cable_type`, plus plant, batch, OTDR, operator, customer), and `colorProfile` (match from cable-profile-colors.data.json, or null). If there are no `rows` yet, `headers` still includes wavelength columns from the linked cable profile configs.',
     })
     @ApiParam({ name: 'batchCableProfileId', type: Number })
     @ApiResponse({ status: 200, description: 'Headers + rows for the fiber testing grid.', type: FiberTestingSavedTableDto })

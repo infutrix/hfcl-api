@@ -5,6 +5,8 @@ import {
     Index,
     JoinColumn,
     ManyToOne,
+    OneToMany,
+    OneToOne,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
@@ -16,6 +18,8 @@ import { Customer } from 'src/customers/entities/customer.entity';
 import { OtdrDevice } from '../../otdr-devices/entities/otdr-device.entity';
 import { Batch } from './batch.entity';
 import { SfgStage } from './sfg-stage.entity';
+import { BatchCableWavelengthTesting } from './batch-cable-wavelength-testing.entity';
+import { BatchPhysicalParams } from './batch-physical-params.entity';
 
 /** 0 = pending, 1 = in-progress, 2 = completed */
 export enum BatchCableProfileStatus {
@@ -57,6 +61,9 @@ export class BatchCableProfile {
     @JoinColumn({ name: 'otdr_device_id' })
     otdr_device: OtdrDevice | null;
 
+    @Column({ name: 'otdr_length_km', type: 'float', nullable: true, default: null })
+    otdr_length_km: number | null;
+
     @Index()
     @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
     @JoinColumn({ name: 'operator_id' })
@@ -71,6 +78,12 @@ export class BatchCableProfile {
     @ManyToOne(() => SfgStage, { nullable: true, onDelete: 'SET NULL' })
     @JoinColumn({ name: 'sfg_stage_id' })
     sfg_stage: SfgStage | null;
+
+    @OneToMany(() => BatchCableWavelengthTesting, (testing) => testing.batch_cable_profile)
+    wavelength_testing: BatchCableWavelengthTesting[];
+
+    @OneToOne(() => BatchPhysicalParams, (params) => params.batch_cable_profile)
+    physical_params: BatchPhysicalParams | null;
 
     @Column({ type: 'varchar' })
     drum_number: string;

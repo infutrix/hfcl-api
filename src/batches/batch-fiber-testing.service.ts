@@ -16,6 +16,7 @@ import {
     FiberTestingSavedTableDto,
     FiberTestingTableHeaderDto,
 } from './dto/fiber-testing-saved-table.dto';
+import { batchCableProfileDetailRelations } from './batch-cable-profile.relations';
 
 import cableProfileColors = require('../cable-profiles/cable-profile-colors.data.json');
 
@@ -83,12 +84,7 @@ export class BatchFiberTestingService {
     async findSavedByBatchCableProfileId(batchCableProfileId: number): Promise<FiberTestingSavedTableDto> {
         const bcp = await this.batchCableProfileRepository.findOne({
             where: { id: batchCableProfileId, deleted: false },
-            relations: {
-                cable_profile: {
-                    wavelength_configs: { cable_wavelength: true },
-                    cable_type: true,
-                },
-            },
+            relations: { ...batchCableProfileDetailRelations },
         });
         if (!bcp) {
             throw new NotFoundException(`Batch cable profile #${batchCableProfileId} not found`);
@@ -114,6 +110,7 @@ export class BatchFiberTestingService {
         return {
             headers,
             rows,
+            batch_cable_profile: bcp,
             colorProfile: colorProfile as Record<string, unknown> | null,
         };
     }

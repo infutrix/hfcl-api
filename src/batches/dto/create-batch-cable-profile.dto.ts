@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { BatchCableProfileStatus } from '../entities/batch-cable-profile.entity';
 
 export class CreateBatchCableProfileDto {
@@ -12,6 +12,11 @@ export class CreateBatchCableProfileDto {
     @IsOptional()
     @IsInt()
     otdr_device_id?: number;
+
+    @ApiPropertyOptional({ example: 100, description: 'OTDR length (km)' })
+    @IsOptional()
+    @IsNumber()
+    otdr_length_km?: number;
 
     @ApiPropertyOptional({ example: 1, description: 'Cable profile ID (optional)' })
     @IsOptional()

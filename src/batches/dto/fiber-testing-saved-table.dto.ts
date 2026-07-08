@@ -19,6 +19,13 @@ export class FiberTestingSavedTableDto {
     rows: BatchFiberTesting[];
 
     @ApiProperty({
+        type: BatchCableProfile,
+        description:
+            'Batch cable profile session with nested `batch` (customer, plant), `operator` (userRole, plant), `otdr_device` (plant), `customer`, `sfg_stage`, `wavelength_testing`, `physical_params`, and `cable_profile`.',
+    })
+    batch_cable_profile: BatchCableProfile;
+
+    @ApiProperty({
         nullable: true,
         description:
             'Matched entry from cable-profile-colors.data.json for `cable_profile.profile_key_value` (null if no match).',
