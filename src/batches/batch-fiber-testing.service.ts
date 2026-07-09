@@ -37,6 +37,11 @@ function headerLabelForAttribute(name: string | null): string {
 
 type TubeColors = { innerLayer: string[]; outerLayer: string[] };
 
+type PhysicalDimensionFieldJson = {
+    key: string;
+    value: number;
+};
+
 type ColorProfileJson = {
     cable_type: string;
     profile_key_value: string;
@@ -47,6 +52,7 @@ type ColorProfileJson = {
     strandColors?: string[];
     fiberColors: string[];
     tubeColors?: TubeColors;
+    physical_dimensions?: PhysicalDimensionFieldJson[][];
 };
 
 function findColorProfile(profileKeyValue: string): ColorProfileJson | undefined {

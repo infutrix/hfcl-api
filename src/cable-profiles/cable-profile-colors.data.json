@@ -29,6 +29,24 @@
                 "Violet",
                 "Pink",
                 "Aqua"
+            ],
+            "physical_dimensions": [
+                [
+                    { "key": "ID", "value": 1.25 },
+                    { "key": "OD", "value": 1.70 },
+                    { "key": "FRP", "value": 2.90 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 1.80 },
+                    { "key": "Cable dia", "value": 11.50 }
+                ],
+                [
+                    { "key": "ID", "value": 1.35 },
+                    { "key": "OD", "value": 1.90 },
+                    { "key": "FRP", "value": 3.10 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 2.40 },
+                    { "key": "Cable dia", "value": 12.50 }
+                ]
             ]
         },
         {
@@ -66,6 +84,24 @@
                 "Violet",
                 "Pink",
                 "Aqua"
+            ],
+            "physical_dimensions": [
+                [
+                    { "key": "ID", "value": 1.25 },
+                    { "key": "OD", "value": 1.70 },
+                    { "key": "FRP", "value": 2.90 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 1.80 },
+                    { "key": "Cable dia", "value": 11.50 }
+                ],
+                [
+                    { "key": "ID", "value": 1.35 },
+                    { "key": "OD", "value": 1.90 },
+                    { "key": "FRP", "value": 3.10 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 2.40 },
+                    { "key": "Cable dia", "value": 12.50 }
+                ]
             ]
         },
         {
@@ -107,6 +143,24 @@
                 "Magenta",
                 "Tan",
                 "Lime"
+            ],
+            "physical_dimensions": [
+                [
+                    { "key": "ID", "value": 1.25 },
+                    { "key": "OD", "value": 1.70 },
+                    { "key": "FRP", "value": 2.90 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 1.80 },
+                    { "key": "Cable dia", "value": 11.50 }
+                ],
+                [
+                    { "key": "ID", "value": 1.35 },
+                    { "key": "OD", "value": 1.90 },
+                    { "key": "FRP", "value": 3.10 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 2.40 },
+                    { "key": "Cable dia", "value": 12.50 }
+                ]
             ]
         },
         {
@@ -156,6 +210,24 @@
                 "Violet",
                 "Pink",
                 "Aqua"
+            ],
+            "physical_dimensions": [
+                [
+                    { "key": "ID", "value": 1.25 },
+                    { "key": "OD", "value": 1.70 },
+                    { "key": "FRP", "value": 2.90 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 1.80 },
+                    { "key": "Cable dia", "value": 11.50 }
+                ],
+                [
+                    { "key": "ID", "value": 1.35 },
+                    { "key": "OD", "value": 1.90 },
+                    { "key": "FRP", "value": 3.10 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 2.40 },
+                    { "key": "Cable dia", "value": 12.50 }
+                ]
             ]
         },
         {
@@ -178,6 +250,24 @@
                 "Violet",
                 "Pink",
                 "Aqua"
+            ],
+            "physical_dimensions": [
+                [
+                    { "key": "ID", "value": 1.25 },
+                    { "key": "OD", "value": 1.70 },
+                    { "key": "FRP", "value": 2.90 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 1.80 },
+                    { "key": "Cable dia", "value": 11.50 }
+                ],
+                [
+                    { "key": "ID", "value": 1.35 },
+                    { "key": "OD", "value": 1.90 },
+                    { "key": "FRP", "value": 3.10 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 2.40 },
+                    { "key": "Cable dia", "value": 12.50 }
+                ]
             ]
         },
         {
@@ -230,6 +320,24 @@
                 "Violet",
                 "Pink",
                 "Aqua"
+            ],
+            "physical_dimensions": [
+                [
+                    { "key": "ID", "value": 1.25 },
+                    { "key": "OD", "value": 1.70 },
+                    { "key": "FRP", "value": 2.90 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 1.80 },
+                    { "key": "Cable dia", "value": 11.50 }
+                ],
+                [
+                    { "key": "ID", "value": 1.35 },
+                    { "key": "OD", "value": 1.90 },
+                    { "key": "FRP", "value": 3.10 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 2.40 },
+                    { "key": "Cable dia", "value": 12.50 }
+                ]
             ]
         },
         {
@@ -260,7 +368,7 @@
                     "White",
                     "Red",
                     "Black",
-                    "Yellow",      
+                    "Yellow",
                     "Violet",
                     "Pink",
                     "Aqua",
@@ -306,6 +414,24 @@
                 "Violet-DoubleRing",
                 "Pink-DoubleRing",
                 "Aqua-DoubleRing"
+            ],
+            "physical_dimensions": [
+                [
+                    { "key": "ID", "value": 1.25 },
+                    { "key": "OD", "value": 1.70 },
+                    { "key": "FRP", "value": 2.90 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 1.80 },
+                    { "key": "Cable dia", "value": 11.50 }
+                ],
+                [
+                    { "key": "ID", "value": 1.35 },
+                    { "key": "OD", "value": 1.90 },
+                    { "key": "FRP", "value": 3.10 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 2.40 },
+                    { "key": "Cable dia", "value": 12.50 }
+                ]
             ]
         }
     ]
