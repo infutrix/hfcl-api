@@ -433,6 +433,1048 @@
                     { "key": "Cable dia", "value": 12.50 }
                 ]
             ]
+        },
+        {
+            "cable_type": "FLAT_RIBBON",
+            "profile_display_name": "12*12 Flat Ribbon",
+            "profile_key_value": "12R_12F_FLAT_RIBBON",
+            "ribbonCount": 12,
+            "fiberCount": 12,
+            "totalFibers": 144,
+            "fiberColors": [
+                "Blue",
+                "Orange",
+                "Green",
+                "Brown",
+                "Slate",
+                "White",
+                "Red",
+                "Black",
+                "Yellow",
+                "Violet",
+                "Pink",
+                "Aqua"
+            ],
+            "physical_dimensions": [
+                [
+                    { "key": "ID", "value": 1.25 },
+                    { "key": "OD", "value": 1.70 },
+                    { "key": "FRP", "value": 2.90 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 1.80 },
+                    { "key": "Cable dia", "value": 11.50 }
+                ],
+                [
+                    { "key": "ID", "value": 1.35 },
+                    { "key": "OD", "value": 1.90 },
+                    { "key": "FRP", "value": 3.10 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 2.40 },
+                    { "key": "Cable dia", "value": 12.50 }
+                ]
+            ]
+        },
+        {
+            "cable_type": "FLAT_RIBBON",
+            "profile_display_name": "12*24 Flat Ribbon",
+            "profile_key_value": "12R_24F_FLAT_RIBBON",
+            "ribbonCount": 12,
+            "fiberCount": 24,
+            "totalFibers": 288,
+            "fiberColors": [
+                "Blue",
+                "Orange",
+                "Green",
+                "Brown",
+                "Slate",
+                "White",
+                "Red",
+                "Black",
+                "Yellow",
+                "Violet",
+                "Pink",
+                "Aqua",
+                "Blue-Ring",
+                "Orange-Ring",
+                "Green-Ring",
+                "Brown-Ring",
+                "Slate-Ring",
+                "White-Ring",
+                "Red-Ring",
+                "Black-Ring",
+                "Yellow-Ring",
+                "Violet-Ring",
+                "Pink-Ring",
+                "Aqua-Ring"
+            ],
+            "physical_dimensions": [
+                [
+                    { "key": "ID", "value": 1.25 },
+                    { "key": "OD", "value": 1.70 },
+                    { "key": "FRP", "value": 2.90 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 1.80 },
+                    { "key": "Cable dia", "value": 11.50 }
+                ],
+                [
+                    { "key": "ID", "value": 1.35 },
+                    { "key": "OD", "value": 1.90 },
+                    { "key": "FRP", "value": 3.10 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 2.40 },
+                    { "key": "Cable dia", "value": 12.50 }
+                ]
+            ]
+        },
+        {
+            "cable_type": "FLAT_RIBBON",
+            "profile_display_name": "12*36 Flat Ribbon",
+            "profile_key_value": "12R_36F_FLAT_RIBBON",
+            "ribbonCount": 12,
+            "fiberCount": 36,
+            "totalFibers": 432,
+            "fiberColors": [
+                "Blue",
+                "Orange",
+                "Green",
+                "Brown",
+                "Slate",
+                "White",
+                "Red",
+                "Black",
+                "Yellow",
+                "Violet",
+                "Pink",
+                "Aqua",
+                "Blue-Ring",
+                "Orange-Ring",
+                "Green-Ring",
+                "Brown-Ring",
+                "Slate-Ring",
+                "White-Ring",
+                "Red-Ring",
+                "Black-Ring",
+                "Yellow-Ring",
+                "Violet-Ring",
+                "Pink-Ring",
+                "Aqua-Ring",
+                "Blue-DoubleRing",
+                "Orange-DoubleRing",
+                "Green-DoubleRing",
+                "Brown-DoubleRing",
+                "Slate-DoubleRing",
+                "White-DoubleRing",
+                "Red-DoubleRing",
+                "Black-DoubleRing",
+                "Yellow-DoubleRing",
+                "Violet-DoubleRing",
+                "Pink-DoubleRing",
+                "Aqua-DoubleRing"
+            ],
+            "physical_dimensions": [
+                [
+                    { "key": "ID", "value": 1.25 },
+                    { "key": "OD", "value": 1.70 },
+                    { "key": "FRP", "value": 2.90 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 1.80 },
+                    { "key": "Cable dia", "value": 11.50 }
+                ],
+                [
+                    { "key": "ID", "value": 1.35 },
+                    { "key": "OD", "value": 1.90 },
+                    { "key": "FRP", "value": 3.10 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 2.40 },
+                    { "key": "Cable dia", "value": 12.50 }
+                ]
+            ]
+        },
+        {
+            "cable_type": "FLAT_RIBBON",
+            "profile_display_name": "24*12 Flat Ribbon",
+            "profile_key_value": "24R_12F_FLAT_RIBBON",
+            "ribbonCount": 24,
+            "fiberCount": 12,
+            "totalFibers": 288,
+            "fiberColors": [
+                "Blue",
+                "Orange",
+                "Green",
+                "Brown",
+                "Slate",
+                "White",
+                "Red",
+                "Black",
+                "Yellow",
+                "Violet",
+                "Pink",
+                "Aqua"
+            ],
+            "physical_dimensions": [
+                [
+                    { "key": "ID", "value": 1.25 },
+                    { "key": "OD", "value": 1.70 },
+                    { "key": "FRP", "value": 2.90 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 1.80 },
+                    { "key": "Cable dia", "value": 11.50 }
+                ],
+                [
+                    { "key": "ID", "value": 1.35 },
+                    { "key": "OD", "value": 1.90 },
+                    { "key": "FRP", "value": 3.10 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 2.40 },
+                    { "key": "Cable dia", "value": 12.50 }
+                ]
+            ]
+        },
+        {
+            "cable_type": "FLAT_RIBBON",
+            "profile_display_name": "24*24 Flat Ribbon",
+            "profile_key_value": "24R_24F_FLAT_RIBBON",
+            "ribbonCount": 24,
+            "fiberCount": 24,
+            "totalFibers": 576,
+            "fiberColors": [
+                "Blue",
+                "Orange",
+                "Green",
+                "Brown",
+                "Slate",
+                "White",
+                "Red",
+                "Black",
+                "Yellow",
+                "Violet",
+                "Pink",
+                "Aqua",
+                "Blue-Ring",
+                "Orange-Ring",
+                "Green-Ring",
+                "Brown-Ring",
+                "Slate-Ring",
+                "White-Ring",
+                "Red-Ring",
+                "Black-Ring",
+                "Yellow-Ring",
+                "Violet-Ring",
+                "Pink-Ring",
+                "Aqua-Ring"
+            ],
+            "physical_dimensions": [
+                [
+                    { "key": "ID", "value": 1.25 },
+                    { "key": "OD", "value": 1.70 },
+                    { "key": "FRP", "value": 2.90 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 1.80 },
+                    { "key": "Cable dia", "value": 11.50 }
+                ],
+                [
+                    { "key": "ID", "value": 1.35 },
+                    { "key": "OD", "value": 1.90 },
+                    { "key": "FRP", "value": 3.10 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 2.40 },
+                    { "key": "Cable dia", "value": 12.50 }
+                ]
+            ]
+        },
+        {
+            "cable_type": "FLAT_RIBBON",
+            "profile_display_name": "24*36 Flat Ribbon",
+            "profile_key_value": "24R_36F_FLAT_RIBBON",
+            "ribbonCount": 24,
+            "fiberCount": 36,
+            "totalFibers": 864,
+            "fiberColors": [
+                "Blue",
+                "Orange",
+                "Green",
+                "Brown",
+                "Slate",
+                "White",
+                "Red",
+                "Black",
+                "Yellow",
+                "Violet",
+                "Pink",
+                "Aqua",
+                "Blue-Ring",
+                "Orange-Ring",
+                "Green-Ring",
+                "Brown-Ring",
+                "Slate-Ring",
+                "White-Ring",
+                "Red-Ring",
+                "Black-Ring",
+                "Yellow-Ring",
+                "Violet-Ring",
+                "Pink-Ring",
+                "Aqua-Ring",
+                "Blue-DoubleRing",
+                "Orange-DoubleRing",
+                "Green-DoubleRing",
+                "Brown-DoubleRing",
+                "Slate-DoubleRing",
+                "White-DoubleRing",
+                "Red-DoubleRing",
+                "Black-DoubleRing",
+                "Yellow-DoubleRing",
+                "Violet-DoubleRing",
+                "Pink-DoubleRing",
+                "Aqua-DoubleRing"
+            ],
+            "physical_dimensions": [
+                [
+                    { "key": "ID", "value": 1.25 },
+                    { "key": "OD", "value": 1.70 },
+                    { "key": "FRP", "value": 2.90 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 1.80 },
+                    { "key": "Cable dia", "value": 11.50 }
+                ],
+                [
+                    { "key": "ID", "value": 1.35 },
+                    { "key": "OD", "value": 1.90 },
+                    { "key": "FRP", "value": 3.10 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 2.40 },
+                    { "key": "Cable dia", "value": 12.50 }
+                ]
+            ]
+        },
+        {
+            "cable_type": "MULTI_TUBE",
+            "profile_display_name": "8*12 Multi Tube",
+            "profile_key_value": "8T_12F_MULTI_TUBE",
+            "tubeCount": 8,
+            "fiberCount": 12,
+            "totalFibers": 96,
+            "tubeColors": {
+                "innerLayer": [
+                    "Blue",
+                    "Orange",
+                    "Green",
+                    "Brown",
+                    "Slate",
+                    "White",
+                    "Red",
+                    "Black"
+                ],
+                "outerLayer": []
+            },
+            "fiberColors": [
+                "Blue",
+                "Orange",
+                "Green",
+                "Brown",
+                "Slate",
+                "White",
+                "Red",
+                "Black",
+                "Yellow",
+                "Violet",
+                "Pink",
+                "Aqua"
+            ],
+            "physical_dimensions": [
+                [
+                    { "key": "ID", "value": 1.25 },
+                    { "key": "OD", "value": 1.70 },
+                    { "key": "FRP", "value": 2.90 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 1.80 },
+                    { "key": "Cable dia", "value": 11.50 }
+                ],
+                [
+                    { "key": "ID", "value": 1.35 },
+                    { "key": "OD", "value": 1.90 },
+                    { "key": "FRP", "value": 3.10 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 2.40 },
+                    { "key": "Cable dia", "value": 12.50 }
+                ]
+            ]
+        },
+        {
+            "cable_type": "MULTI_TUBE",
+            "profile_display_name": "8*24 Multi Tube",
+            "profile_key_value": "8T_24F_MULTI_TUBE",
+            "tubeCount": 8,
+            "fiberCount": 24,
+            "totalFibers": 192,
+            "tubeColors": {
+                "innerLayer": [
+                    "Blue",
+                    "Orange",
+                    "Green",
+                    "Brown",
+                    "Slate",
+                    "White",
+                    "Red",
+                    "Black"
+                ],
+                "outerLayer": []
+            },
+            "fiberColors": [
+                "Blue",
+                "Orange",
+                "Green",
+                "Brown",
+                "Slate",
+                "White",
+                "Red",
+                "Black",
+                "Yellow",
+                "Violet",
+                "Pink",
+                "Aqua",
+                "Blue-Ring",
+                "Orange-Ring",
+                "Green-Ring",
+                "Brown-Ring",
+                "Slate-Ring",
+                "White-Ring",
+                "Red-Ring",
+                "Black-Ring",
+                "Yellow-Ring",
+                "Violet-Ring",
+                "Pink-Ring",
+                "Aqua-Ring"
+            ],
+            "physical_dimensions": [
+                [
+                    { "key": "ID", "value": 1.25 },
+                    { "key": "OD", "value": 1.70 },
+                    { "key": "FRP", "value": 2.90 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 1.80 },
+                    { "key": "Cable dia", "value": 11.50 }
+                ],
+                [
+                    { "key": "ID", "value": 1.35 },
+                    { "key": "OD", "value": 1.90 },
+                    { "key": "FRP", "value": 3.10 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 2.40 },
+                    { "key": "Cable dia", "value": 12.50 }
+                ]
+            ]
+        },
+        {
+            "cable_type": "MULTI_TUBE",
+            "profile_display_name": "8*36 Multi Tube",
+            "profile_key_value": "8T_36F_MULTI_TUBE",
+            "tubeCount": 8,
+            "fiberCount": 36,
+            "totalFibers": 288,
+            "tubeColors": {
+                "innerLayer": [
+                    "Blue",
+                    "Orange",
+                    "Green",
+                    "Brown",
+                    "Slate",
+                    "White",
+                    "Red",
+                    "Black"
+                ],
+                "outerLayer": []
+            },
+            "fiberColors": [
+                "Blue",
+                "Orange",
+                "Green",
+                "Brown",
+                "Slate",
+                "White",
+                "Red",
+                "Black",
+                "Yellow",
+                "Violet",
+                "Pink",
+                "Aqua",
+                "Blue-Ring",
+                "Orange-Ring",
+                "Green-Ring",
+                "Brown-Ring",
+                "Slate-Ring",
+                "White-Ring",
+                "Red-Ring",
+                "Black-Ring",
+                "Yellow-Ring",
+                "Violet-Ring",
+                "Pink-Ring",
+                "Aqua-Ring",
+                "Blue-DoubleRing",
+                "Orange-DoubleRing",
+                "Green-DoubleRing",
+                "Brown-DoubleRing",
+                "Slate-DoubleRing",
+                "White-DoubleRing",
+                "Red-DoubleRing",
+                "Black-DoubleRing",
+                "Yellow-DoubleRing",
+                "Violet-DoubleRing",
+                "Pink-DoubleRing",
+                "Aqua-DoubleRing"
+            ],
+            "physical_dimensions": [
+                [
+                    { "key": "ID", "value": 1.25 },
+                    { "key": "OD", "value": 1.70 },
+                    { "key": "FRP", "value": 2.90 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 1.80 },
+                    { "key": "Cable dia", "value": 11.50 }
+                ],
+                [
+                    { "key": "ID", "value": 1.35 },
+                    { "key": "OD", "value": 1.90 },
+                    { "key": "FRP", "value": 3.10 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 2.40 },
+                    { "key": "Cable dia", "value": 12.50 }
+                ]
+            ]
+        },
+        {
+            "cable_type": "MULTI_TUBE",
+            "profile_display_name": "12*12 Multi Tube",
+            "profile_key_value": "12T_12F_MULTI_TUBE",
+            "tubeCount": 12,
+            "fiberCount": 12,
+            "totalFibers": 144,
+            "tubeColors": {
+                "innerLayer": [
+                    "Blue",
+                    "Orange",
+                    "Green",
+                    "Brown",
+                    "Slate",
+                    "White",
+                    "Red",
+                    "Black",
+                    "Yellow",
+                    "Violet",
+                    "Pink",
+                    "Aqua"
+                ],
+                "outerLayer": []
+            },
+            "fiberColors": [
+                "Blue",
+                "Orange",
+                "Green",
+                "Brown",
+                "Slate",
+                "White",
+                "Red",
+                "Black",
+                "Yellow",
+                "Violet",
+                "Pink",
+                "Aqua"
+            ],
+            "physical_dimensions": [
+                [
+                    { "key": "ID", "value": 1.25 },
+                    { "key": "OD", "value": 1.70 },
+                    { "key": "FRP", "value": 2.90 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 1.80 },
+                    { "key": "Cable dia", "value": 11.50 }
+                ],
+                [
+                    { "key": "ID", "value": 1.35 },
+                    { "key": "OD", "value": 1.90 },
+                    { "key": "FRP", "value": 3.10 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 2.40 },
+                    { "key": "Cable dia", "value": 12.50 }
+                ]
+            ]
+        },
+        {
+            "cable_type": "MULTI_TUBE",
+            "profile_display_name": "12*24 Multi Tube",
+            "profile_key_value": "12T_24F_MULTI_TUBE",
+            "tubeCount": 12,
+            "fiberCount": 24,
+            "totalFibers": 288,
+            "tubeColors": {
+                "innerLayer": [
+                    "Blue",
+                    "Orange",
+                    "Green",
+                    "Brown",
+                    "Slate",
+                    "White",
+                    "Red",
+                    "Black",
+                    "Yellow",
+                    "Violet",
+                    "Pink",
+                    "Aqua"
+                ],
+                "outerLayer": []
+            },
+            "fiberColors": [
+                "Blue",
+                "Orange",
+                "Green",
+                "Brown",
+                "Slate",
+                "White",
+                "Red",
+                "Black",
+                "Yellow",
+                "Violet",
+                "Pink",
+                "Aqua",
+                "Blue-Ring",
+                "Orange-Ring",
+                "Green-Ring",
+                "Brown-Ring",
+                "Slate-Ring",
+                "White-Ring",
+                "Red-Ring",
+                "Black-Ring",
+                "Yellow-Ring",
+                "Violet-Ring",
+                "Pink-Ring",
+                "Aqua-Ring"
+            ],
+            "physical_dimensions": [
+                [
+                    { "key": "ID", "value": 1.25 },
+                    { "key": "OD", "value": 1.70 },
+                    { "key": "FRP", "value": 2.90 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 1.80 },
+                    { "key": "Cable dia", "value": 11.50 }
+                ],
+                [
+                    { "key": "ID", "value": 1.35 },
+                    { "key": "OD", "value": 1.90 },
+                    { "key": "FRP", "value": 3.10 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 2.40 },
+                    { "key": "Cable dia", "value": 12.50 }
+                ]
+            ]
+        },
+        {
+            "cable_type": "MULTI_TUBE",
+            "profile_display_name": "12*36 Multi Tube",
+            "profile_key_value": "12T_36F_MULTI_TUBE",
+            "tubeCount": 12,
+            "fiberCount": 36,
+            "totalFibers": 432,
+            "tubeColors": {
+                "innerLayer": [
+                    "Blue",
+                    "Orange",
+                    "Green",
+                    "Brown",
+                    "Slate",
+                    "White",
+                    "Red",
+                    "Black",
+                    "Yellow",
+                    "Violet",
+                    "Pink",
+                    "Aqua"
+                ],
+                "outerLayer": []
+            },
+            "fiberColors": [
+                "Blue",
+                "Orange",
+                "Green",
+                "Brown",
+                "Slate",
+                "White",
+                "Red",
+                "Black",
+                "Yellow",
+                "Violet",
+                "Pink",
+                "Aqua",
+                "Blue-Ring",
+                "Orange-Ring",
+                "Green-Ring",
+                "Brown-Ring",
+                "Slate-Ring",
+                "White-Ring",
+                "Red-Ring",
+                "Black-Ring",
+                "Yellow-Ring",
+                "Violet-Ring",
+                "Pink-Ring",
+                "Aqua-Ring",
+                "Blue-DoubleRing",
+                "Orange-DoubleRing",
+                "Green-DoubleRing",
+                "Brown-DoubleRing",
+                "Slate-DoubleRing",
+                "White-DoubleRing",
+                "Red-DoubleRing",
+                "Black-DoubleRing",
+                "Yellow-DoubleRing",
+                "Violet-DoubleRing",
+                "Pink-DoubleRing",
+                "Aqua-DoubleRing"
+            ],
+            "physical_dimensions": [
+                [
+                    { "key": "ID", "value": 1.25 },
+                    { "key": "OD", "value": 1.70 },
+                    { "key": "FRP", "value": 2.90 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 1.80 },
+                    { "key": "Cable dia", "value": 11.50 }
+                ],
+                [
+                    { "key": "ID", "value": 1.35 },
+                    { "key": "OD", "value": 1.90 },
+                    { "key": "FRP", "value": 3.10 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 2.40 },
+                    { "key": "Cable dia", "value": 12.50 }
+                ]
+            ]
+        },
+        {
+            "cable_type": "MULTI_TUBE",
+            "profile_display_name": "24*12 Multi Tube (3S)",
+            "profile_key_value": "24T_12F_MULTI_TUBE_3S",
+            "tubeCount": 24,
+            "fiberCount": 12,
+            "totalFibers": 288,
+            "tubeColors": {
+                "innerLayer": [
+                    "Blue",
+                    "Orange",
+                    "Green",
+                    "Brown",
+                    "Slate",
+                    "White",
+                    "Red",
+                    "Black",
+                    "Yellow"
+                ],
+                "outerLayer": [
+                    "Blue",
+                    "Orange",
+                    "Green",
+                    "Brown",
+                    "Slate",
+                    "White",
+                    "Red",
+                    "Black",
+                    "Yellow",
+                    "Violet",
+                    "Pink",
+                    "Aqua",
+                    "Blue-Strip",
+                    "Orange-Strip",
+                    "Green-Strip"
+                ]
+            },
+            "fiberColors": [
+                "Blue",
+                "Orange",
+                "Green",
+                "Brown",
+                "Slate",
+                "White",
+                "Red",
+                "Black",
+                "Yellow",
+                "Violet",
+                "Pink",
+                "Aqua"
+            ],
+            "physical_dimensions": [
+                [
+                    { "key": "ID", "value": 1.25 },
+                    { "key": "OD", "value": 1.70 },
+                    { "key": "FRP", "value": 2.90 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 1.80 },
+                    { "key": "Cable dia", "value": 11.50 }
+                ],
+                [
+                    { "key": "ID", "value": 1.35 },
+                    { "key": "OD", "value": 1.90 },
+                    { "key": "FRP", "value": 3.10 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 2.40 },
+                    { "key": "Cable dia", "value": 12.50 }
+                ]
+            ]
+        },
+        {
+            "cable_type": "MULTI_TUBE",
+            "profile_display_name": "24*24 Multi Tube (3S)",
+            "profile_key_value": "24T_24F_MULTI_TUBE_3S",
+            "tubeCount": 24,
+            "fiberCount": 24,
+            "totalFibers": 576,
+            "tubeColors": {
+                "innerLayer": [
+                    "Blue",
+                    "Orange",
+                    "Green",
+                    "Brown",
+                    "Slate",
+                    "White",
+                    "Red",
+                    "Black",
+                    "Yellow"
+                ],
+                "outerLayer": [
+                    "Blue",
+                    "Orange",
+                    "Green",
+                    "Brown",
+                    "Slate",
+                    "White",
+                    "Red",
+                    "Black",
+                    "Yellow",
+                    "Violet",
+                    "Pink",
+                    "Aqua",
+                    "Blue-Strip",
+                    "Orange-Strip",
+                    "Green-Strip"
+                ]
+            },
+            "fiberColors": [
+                "Blue",
+                "Orange",
+                "Green",
+                "Brown",
+                "Slate",
+                "White",
+                "Red",
+                "Black",
+                "Yellow",
+                "Violet",
+                "Pink",
+                "Aqua",
+                "Blue-Ring",
+                "Orange-Ring",
+                "Green-Ring",
+                "Brown-Ring",
+                "Slate-Ring",
+                "White-Ring",
+                "Red-Ring",
+                "Black-Ring",
+                "Yellow-Ring",
+                "Violet-Ring",
+                "Pink-Ring",
+                "Aqua-Ring"
+            ],
+            "physical_dimensions": [
+                [
+                    { "key": "ID", "value": 1.25 },
+                    { "key": "OD", "value": 1.70 },
+                    { "key": "FRP", "value": 2.90 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 1.80 },
+                    { "key": "Cable dia", "value": 11.50 }
+                ],
+                [
+                    { "key": "ID", "value": 1.35 },
+                    { "key": "OD", "value": 1.90 },
+                    { "key": "FRP", "value": 3.10 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 2.40 },
+                    { "key": "Cable dia", "value": 12.50 }
+                ]
+            ]
+        },
+        {
+            "cable_type": "MULTI_TUBE",
+            "profile_display_name": "24*24 Multi Tube (12S)",
+            "profile_key_value": "24T_24F_MULTI_TUBE_12S",
+            "tubeCount": 24,
+            "fiberCount": 24,
+            "totalFibers": 576,
+            "tubeColors": {
+                "innerLayer": [
+                    "Blue",
+                    "Orange",
+                    "Green",
+                    "Brown",
+                    "Slate",
+                    "White",
+                    "Red",
+                    "Black",
+                    "Yellow"
+                ],
+                "outerLayer": [
+                    "Violet",
+                    "Pink",
+                    "Aqua",
+                    "Blue-Strip",
+                    "Orange-Strip",
+                    "Green-Strip",
+                    "Brown-Strip",
+                    "Slate-Strip",
+                    "White-Strip",
+                    "Red-Strip",
+                    "Black-Strip",
+                    "Yellow-Strip",
+                    "Violet-Strip",
+                    "Pink-Strip",
+                    "Aqua-Strip"
+                ]
+            },
+            "fiberColors": [
+                "Blue",
+                "Orange",
+                "Green",
+                "Brown",
+                "Slate",
+                "White",
+                "Red",
+                "Black",
+                "Yellow",
+                "Violet",
+                "Pink",
+                "Aqua",
+                "Blue-Ring",
+                "Orange-Ring",
+                "Green-Ring",
+                "Brown-Ring",
+                "Slate-Ring",
+                "White-Ring",
+                "Red-Ring",
+                "Black-Ring",
+                "Yellow-Ring",
+                "Violet-Ring",
+                "Pink-Ring",
+                "Aqua-Ring"
+            ],
+            "physical_dimensions": [
+                [
+                    { "key": "ID", "value": 1.25 },
+                    { "key": "OD", "value": 1.70 },
+                    { "key": "FRP", "value": 2.90 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 1.80 },
+                    { "key": "Cable dia", "value": 11.50 }
+                ],
+                [
+                    { "key": "ID", "value": 1.35 },
+                    { "key": "OD", "value": 1.90 },
+                    { "key": "FRP", "value": 3.10 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 2.40 },
+                    { "key": "Cable dia", "value": 12.50 }
+                ]
+            ]
+        },
+        {
+            "cable_type": "MULTI_TUBE",
+            "profile_display_name": "24*36 Multi Tube (12S)",
+            "profile_key_value": "24T_36F_MULTI_TUBE_12S",
+            "tubeCount": 24,
+            "fiberCount": 36,
+            "totalFibers": 864,
+            "tubeColors": {
+                "innerLayer": [
+                    "Blue",
+                    "Orange",
+                    "Green",
+                    "Brown",
+                    "Slate",
+                    "White",
+                    "Red",
+                    "Black",
+                    "Yellow"
+                ],
+                "outerLayer": [
+                    "Violet",
+                    "Pink",
+                    "Aqua",
+                    "Blue-Strip",
+                    "Orange-Strip",
+                    "Green-Strip",
+                    "Brown-Strip",
+                    "Slate-Strip",
+                    "White-Strip",
+                    "Red-Strip",
+                    "Black-Strip",
+                    "Yellow-Strip",
+                    "Violet-Strip",
+                    "Pink-Strip",
+                    "Aqua-Strip"
+                ]
+            },
+            "fiberColors": [
+                "Blue",
+                "Orange",
+                "Green",
+                "Brown",
+                "Slate",
+                "White",
+                "Red",
+                "Black",
+                "Yellow",
+                "Violet",
+                "Pink",
+                "Aqua",
+                "Blue-Ring",
+                "Orange-Ring",
+                "Green-Ring",
+                "Brown-Ring",
+                "Slate-Ring",
+                "White-Ring",
+                "Red-Ring",
+                "Black-Ring",
+                "Yellow-Ring",
+                "Violet-Ring",
+                "Pink-Ring",
+                "Aqua-Ring",
+                "Blue-DoubleRing",
+                "Orange-DoubleRing",
+                "Green-DoubleRing",
+                "Brown-DoubleRing",
+                "Slate-DoubleRing",
+                "White-DoubleRing",
+                "Red-DoubleRing",
+                "Black-DoubleRing",
+                "Yellow-DoubleRing",
+                "Violet-DoubleRing",
+                "Pink-DoubleRing",
+                "Aqua-DoubleRing"
+            ],
+            "physical_dimensions": [
+                [
+                    { "key": "ID", "value": 1.25 },
+                    { "key": "OD", "value": 1.70 },
+                    { "key": "FRP", "value": 2.90 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 1.80 },
+                    { "key": "Cable dia", "value": 11.50 }
+                ],
+                [
+                    { "key": "ID", "value": 1.35 },
+                    { "key": "OD", "value": 1.90 },
+                    { "key": "FRP", "value": 3.10 },
+                    { "key": "Inner", "value": 0.00 },
+                    { "key": "Outer", "value": 2.40 },
+                    { "key": "Cable dia", "value": 12.50 }
+                ]
+            ]
         }
     ]
 }
