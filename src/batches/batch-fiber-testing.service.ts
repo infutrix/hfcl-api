@@ -374,10 +374,10 @@ export class BatchFiberTestingService {
                 const fiberColor = fiberColors[(fiber - 1) % fiberColors.length];
                 rows.push({
                     fiber_number: fiber_number++,
-                    attribute1_name: 'Tube',
-                    attribute1_value: tubeColor,
-                    attribute2_name: 'Type',
-                    attribute2_value: tubeType,
+                    attribute1_name: 'Type',
+                    attribute1_value: tubeType,
+                    attribute2_name: 'Tube',
+                    attribute2_value: tubeColor,
                     attribute3_name: 'Fiber',
                     attribute3_value: fiberColor,
                     waveLengths: waveLengths.map((w) => ({ ...w })),
