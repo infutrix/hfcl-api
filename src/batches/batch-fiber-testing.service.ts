@@ -115,7 +115,7 @@ export class BatchFiberTestingService {
         });
 
         const headers = rows[0]
-            ? this.buildTableHeaders(rows[0])
+            ? this.buildTableHeaders(rows[0], cableProfile.wavelength_configs ?? [])
             : this.buildTableHeadersFromCableProfile(bcp.cable_profile);
 
         return {
@@ -144,7 +144,16 @@ export class BatchFiberTestingService {
         return headers;
     }
 
-    private buildTableHeaders(first: BatchFiberTesting | undefined): FiberTestingTableHeaderDto[] {
+    /**
+     * Wavelength columns come from the cable profile's configured wavelengths, not from a
+     * saved row's `fiber_wavelengths` — a row's list can be shorter than the full config
+     * (e.g. only some wavelengths were tested for that fiber), which previously made the
+     * header silently drop the untested wavelength columns for every fiber.
+     */
+    private buildTableHeaders(
+        first: BatchFiberTesting | undefined,
+        wavelengthConfigs: CableProfileWavelengthConfig[],
+    ): FiberTestingTableHeaderDto[] {
         const headers: FiberTestingTableHeaderDto[] = [{ key: 'fiber_number', label: 'FIBER NO' }];
         if (!first) {
             return headers;
@@ -160,9 +169,7 @@ export class BatchFiberTestingService {
         pushAttr(first.attribute2_name, 'attribute2_value');
         pushAttr(first.attribute3_name, 'attribute3_value');
 
-        const waves = [...(first.fiber_wavelengths ?? [])].sort(
-            (a, b) => Number(a.wavelength_nm) - Number(b.wavelength_nm),
-        );
+        const waves = this.buildWaveLengthsFromConfigs(wavelengthConfigs);
         for (const w of waves) {
             headers.push({
                 key: `wavelength:${w.wavelength_nm}`,
@@ -397,10 +404,19 @@ export class BatchFiberTestingService {
             throw new NotFoundException(`Batch fiber testing #${id} not found`);
         }
 
-        row.fiber_wavelengths = dto.fiber_wavelengths.map((w) => ({
-            wavelength_nm: String(w.wavelength_nm),
-            measured_value: w.measured_value ?? '',
-        }));
+        // Merge rather than replace: a test run may only cover some of the row's
+        // configured wavelengths (e.g. a wavelength wasn't tested this time), and
+        // overwriting the whole array would silently drop the others' saved readings.
+        const incoming = new Map(dto.fiber_wavelengths.map((w) => [String(w.wavelength_nm), w.measured_value ?? '']));
+        const merged = (row.fiber_wavelengths ?? []).map((w) =>
+            incoming.has(w.wavelength_nm) ? { ...w, measured_value: incoming.get(w.wavelength_nm)! } : w,
+        );
+        for (const [wavelength_nm, measured_value] of incoming) {
+            if (!merged.some((w) => w.wavelength_nm === wavelength_nm)) {
+                merged.push({ wavelength_nm, measured_value });
+            }
+        }
+        row.fiber_wavelengths = merged;
         row.testing_counter = (row.testing_counter ?? 0) + 1;
 
         const parsedAiResponse = this.normalizeAiResponse(dto.ai_response);
