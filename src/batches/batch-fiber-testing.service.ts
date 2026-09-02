@@ -27,6 +27,7 @@ const ATTRIBUTE_HEADER_LABELS: Record<string, string> = {
     ribbon: 'RIBBON',
     fiber: 'FIBER',
     'tube#': 'TUBE #',
+    type: 'TYPE',
 };
 
 function headerLabelForAttribute(name: string | null): string {
@@ -72,6 +73,10 @@ function tubeColorAtIndex(tubeIndex1Based: number, tubes: TubeColors): string {
         );
     }
     return outerLayer[outerIdx];
+}
+
+function tubeTypeAtIndex(tubeIndex1Based: number, tubes: TubeColors): 'Inner' | 'Outer' {
+    return tubeIndex1Based <= tubes.innerLayer.length ? 'Inner' : 'Outer';
 }
 
 const SAVE_CHUNK_SIZE = 400;
@@ -364,18 +369,17 @@ export class BatchFiberTestingService {
         let fiber_number = 1;
         for (let tube = 1; tube <= tubeCount; tube++) {
             const tubeColor = tubeColorAtIndex(tube, tubes);
+            const tubeType = tubeTypeAtIndex(tube, tubes);
             for (let fiber = 1; fiber <= fiberCount; fiber++) {
                 const fiberColor = fiberColors[(fiber - 1) % fiberColors.length];
                 rows.push({
                     fiber_number: fiber_number++,
                     attribute1_name: 'Tube',
                     attribute1_value: tubeColor,
-                    attribute2_name: 'Fiber',
-                    attribute2_value: fiberColor,
-                    attribute3_name: '',
-                    attribute3_value: '',
-                    //attribute3_name: 'Tube#',
-                    //attribute3_value: String(tube),
+                    attribute2_name: 'Type',
+                    attribute2_value: tubeType,
+                    attribute3_name: 'Fiber',
+                    attribute3_value: fiberColor,
                     waveLengths: waveLengths.map((w) => ({ ...w })),
                 });
             }

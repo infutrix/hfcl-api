@@ -46,4 +46,4 @@ Thumbs.db
 
 # Optional eslint cache
 .eslintcache
-
+.prettierignore
