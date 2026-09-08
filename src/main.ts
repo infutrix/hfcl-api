@@ -6,6 +6,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableShutdownHooks();
 
   const isDev = process.env.NODE_ENV === 'development';
   const allowedOrigins = isDev
@@ -60,7 +61,7 @@ async function bootstrap() {
   });
 
   const port = process.env.APP_PORT ?? 3000;
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
   console.log(`Application running on: http://localhost:${port}`);
   console.log(`Swagger docs: http://localhost:${port}/api/docs`);
 }

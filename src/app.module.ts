@@ -12,6 +12,7 @@ import { CableProfilesModule } from './cable-profiles/cable-profiles.module';
 import { CustomersModule } from './customers/customers.module';
 import { BatchesModule } from './batches/batches.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { DiscoveryModule } from './discovery/discovery.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     CustomersModule,
     BatchesModule,
     DashboardModule,
+    DiscoveryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
