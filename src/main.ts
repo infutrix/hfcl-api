@@ -8,13 +8,10 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableShutdownHooks();
 
-  const isDev = process.env.NODE_ENV === 'development';
-  const allowedOrigins = isDev
-    ? ['http://localhost:3000', 'http://72.60.97.5:2220']
-    : (process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://72.60.97.5:2220']);
-
   app.enableCors({
-    origin: allowedOrigins,
+    // Reflect the browser's Origin so credentialed requests can be made from
+    // any LAN client (or other origin) without a fixed allowlist.
+    origin: true,
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS','PUT'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
