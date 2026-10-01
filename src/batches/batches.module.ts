@@ -20,6 +20,10 @@ import { VernierNosService } from './vernier-nos.service';
 import { BatchPhysicalParamsController } from './batch-physical-params.controller';
 import { BatchPhysicalParamsService } from './batch-physical-params.service';
 import { BatchCableWavelengthTesting } from './entities/batch-cable-wavelength-testing.entity';
+import { FiberTestEvent } from './entities/fiber-test-event.entity';
+import { FiberTestEventReading } from './entities/fiber-test-event-reading.entity';
+import { CableProfileWavelengthConfig } from '../cable-profiles/entities/cable-profile-wavelength-config.entity';
+import { FiberTestEventBackfillService } from './fiber-test-event-backfill.service';
 import { BatchCableWavelengthTestingController } from './batch-cable-wavelength-testing.controller';
 import { BatchCableWavelengthTestingService } from './batch-cable-wavelength-testing.service';
 
@@ -35,6 +39,9 @@ import { BatchCableWavelengthTestingService } from './batch-cable-wavelength-tes
             VernierNo,
             BatchPhysicalParams,
             BatchCableWavelengthTesting,
+            FiberTestEvent,
+            FiberTestEventReading,
+            CableProfileWavelengthConfig,
         ]),
         AuditModule,
     ],
@@ -53,6 +60,7 @@ import { BatchCableWavelengthTestingService } from './batch-cable-wavelength-tes
         VernierNosService,
         BatchPhysicalParamsService,
         BatchCableWavelengthTestingService,
+        FiberTestEventBackfillService,
     ],
     exports: [
         BatchesService,

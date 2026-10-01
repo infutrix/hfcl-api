@@ -10,6 +10,10 @@ import { CableProfile } from '../cable-profiles/entities/cable-profile.entity';
 import { BatchCableProfile, BatchCableProfileStatus } from './entities/batch-cable-profile.entity';
 import { BatchFiberTesting, FiberWavelengthReading } from './entities/batch-fiber-testing.entity';
 import { FiberTestingAiResponse } from './entities/fiber-testing-ai-response.entity';
+import { FiberTestEvent } from './entities/fiber-test-event.entity';
+import { User } from '../users/entities/user.entity';
+import { buildWavelengthLimits } from './wavelength-range.util';
+import { createFiberTestEvent } from './fiber-test-event.factory';
 import { FiberTestingMatrixRowDto } from './dto/fiber-testing-matrix.dto';
 import { UpdateBatchFiberTestingDto } from './dto/update-batch-fiber-testing.dto';
 import {
@@ -395,7 +399,11 @@ export class BatchFiberTestingService {
     }
 
     /** Update wavelength readings, bump testing_counter, and store AI response. */
-    async updateBatchFiberTesting(id: number, dto: UpdateBatchFiberTestingDto): Promise<BatchFiberTesting> {
+    async updateBatchFiberTesting(
+        id: number,
+        dto: UpdateBatchFiberTestingDto,
+        actor?: User | null,
+    ): Promise<BatchFiberTesting> {
         const row = await this.batchFiberTestingRepository.findOne({
             where: { id },
             relations: { batch_cable_profile: true },
@@ -420,9 +428,16 @@ export class BatchFiberTestingService {
         row.testing_counter = (row.testing_counter ?? 0) + 1;
 
         const parsedAiResponse = this.normalizeAiResponse(dto.ai_response);
+        const testEvent = row.batch_cable_profile
+            ? await this.buildTestEvent(row, dto, actor ?? null)
+            : null;
 
         await this.dataSource.transaction(async (manager) => {
             await manager.save(BatchFiberTesting, row);
+
+            if (testEvent) {
+                await manager.save(FiberTestEvent, testEvent);
+            }
 
             if (
                 row.batch_cable_profile &&
@@ -446,6 +461,36 @@ export class BatchFiberTestingService {
         });
 
         return this.batchFiberTestingRepository.findOneOrFail({ where: { id } });
+    }
+
+    /**
+     * Snapshot of this submission for the reporting log: only the wavelengths sent in this
+     * request, judged against the session's cable profile limits as they are right now.
+     */
+    private async buildTestEvent(
+        row: BatchFiberTesting,
+        dto: UpdateBatchFiberTestingDto,
+        actor: User | null,
+    ): Promise<FiberTestEvent> {
+        const bcpId = row.batch_cable_profile!.id;
+        const configs = await this.dataSource
+            .getRepository(CableProfileWavelengthConfig)
+            .createQueryBuilder('cfg')
+            .leftJoinAndSelect('cfg.cable_wavelength', 'cw')
+            .innerJoin(BatchCableProfile, 'bcp', 'bcp.cable_profile_id = cfg.cable_profile_id')
+            .where('bcp.id = :bcpId', { bcpId })
+            .getMany();
+
+        return createFiberTestEvent({
+            fiberTestingId: row.id,
+            batchCableProfileId: bcpId,
+            testedById: actor?.id ?? null,
+            fiberNumber: row.fiber_number ?? 0,
+            attempt: row.testing_counter,
+            readings: dto.fiber_wavelengths,
+            limits: buildWavelengthLimits(configs),
+            testedAt: new Date(),
+        });
     }
 
     private normalizeAiResponse(

@@ -15,6 +15,8 @@ import {
     ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { User } from '../users/entities/user.entity';
 import { BatchFiberTestingService } from './batch-fiber-testing.service';
 import { UpdateBatchFiberTestingDto } from './dto/update-batch-fiber-testing.dto';
 import { FiberTestingSavedTableDto } from './dto/fiber-testing-saved-table.dto';
@@ -47,7 +49,7 @@ export class BatchFiberTestingController {
     @ApiOperation({
         summary: 'Update fiber testing row (wavelengths + AI response)',
         description:
-            'Updates `fiber_wavelengths` for the batch fiber testing row, increments `testing_counter` by 1, and appends `ai_response` to `fiber_testing_ai_response`.',
+            'Updates `fiber_wavelengths` for the batch fiber testing row, increments `testing_counter` by 1, and appends `ai_response` to `fiber_testing_ai_response`. Each call is also logged to `fiber_test_events` (tester, result vs. attenuation limits) for reporting.',
     })
     @ApiParam({ name: 'id', type: Number, description: 'batch_fiber_testing.id' })
     @ApiResponse({ status: 200, description: 'Updated row.', type: BatchFiberTesting })
@@ -56,7 +58,8 @@ export class BatchFiberTestingController {
     async update(
         @Param('id', ParseIntPipe) id: number,
         @Body() dto: UpdateBatchFiberTestingDto,
+        @CurrentUser() user: User | null,
     ): Promise<BatchFiberTesting> {
-        return this.batchFiberTestingService.updateBatchFiberTesting(id, dto);
+        return this.batchFiberTestingService.updateBatchFiberTesting(id, dto, user);
     }
 }

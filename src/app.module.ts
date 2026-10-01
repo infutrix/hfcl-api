@@ -13,6 +13,7 @@ import { CustomersModule } from './customers/customers.module';
 import { BatchesModule } from './batches/batches.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { DiscoveryModule } from './discovery/discovery.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { DiscoveryModule } from './discovery/discovery.module';
     BatchesModule,
     DashboardModule,
     DiscoveryModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
