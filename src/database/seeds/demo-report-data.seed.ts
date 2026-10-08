@@ -511,6 +511,11 @@ async function live(ds: DataSource, minutes: number) {
     }
 
     const api = `http://localhost:${process.env.APP_PORT ?? 3000}`;
+    try {
+        await fetch(api, { signal: AbortSignal.timeout(5000) });
+    } catch {
+        throw new Error(`The API is not reachable at ${api}. Start it first (npm run start:dev), then re-run this command.`);
+    }
     const endAt = Date.now() + minutes * 60_000;
     console.log(`Submitting demo tests to ${api} for ${minutes} min on sessions ${sessions.map((s) => s.id).join(', ')} (Ctrl+C to stop)...`);
 
@@ -566,6 +571,6 @@ async function main() {
 }
 
 main().catch((error) => {
-    console.error(error);
+    console.error(error instanceof Error && error.message.startsWith('The API is not reachable') ? error.message : error);
     process.exit(1);
 });
