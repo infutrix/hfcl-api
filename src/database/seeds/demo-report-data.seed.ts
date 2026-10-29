@@ -17,9 +17,11 @@ import * as bcrypt from 'bcrypt';
 import * as dotenv from 'dotenv';
 import { DataSource } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { BatchCableProfile } from '../../batches/entities/batch-cable-profile.entity';
 import { BatchFiberTesting } from '../../batches/entities/batch-fiber-testing.entity';
 import { BatchFiberTestingService } from '../../batches/batch-fiber-testing.service';
+import { FiberTestImageStorage } from '../../batches/fiber-test-image.storage';
 import { CableProfileWavelengthConfig } from '../../cable-profiles/entities/cable-profile-wavelength-config.entity';
 import { buildWavelengthLimits, WavelengthLimit } from '../../batches/wavelength-range.util';
 import { toLocalSqlDateTime } from '../../reports/report-range.util';
@@ -463,6 +465,7 @@ async function seed(ds: DataSource) {
         ds.getRepository(BatchCableProfile),
         ds.getRepository(BatchFiberTesting),
         ds,
+        new FiberTestImageStorage(new ConfigService()),
     );
     const plans = planSessions(refs, new Date());
     let totalEvents = 0;

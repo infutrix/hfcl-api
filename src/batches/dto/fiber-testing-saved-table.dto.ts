@@ -28,7 +28,7 @@ export class FiberTestingSavedTableDto {
     @ApiProperty({
         nullable: true,
         description:
-            'Matched entry from cable-profile-colors.data.json for `cable_profile.profile_key_value` (null if no match).',
+            'The cable profile structure, or the built-in template for its `profile_key_value` (null if neither).',
         example: {
             cable_type: 'MULTI_TUBE',
             profile_key_value: '24T_12F_MULTI_TUBE_PROFILE1',

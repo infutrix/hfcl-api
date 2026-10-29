@@ -70,6 +70,13 @@ export class FiberTestEvent {
     @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
     tested_at: Date;
 
+    /** Fiber photo the AI judged for this test, relative to FIBER_TEST_IMAGE_DIR; null when none was uploaded. */
+    @Column({ type: 'varchar', length: 255, nullable: true, default: null })
+    image_path: string | null;
+
+    @Column({ type: 'varchar', length: 50, nullable: true, default: null })
+    image_mime_type: string | null;
+
     @OneToMany(() => FiberTestEventReading, (reading) => reading.event, { cascade: ['insert'] })
     readings: FiberTestEventReading[];
 }

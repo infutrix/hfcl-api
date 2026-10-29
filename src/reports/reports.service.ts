@@ -72,10 +72,22 @@ const SESSION_JOINS = `LEFT JOIN batches b ON b.id = bcp.batch_id
     LEFT JOIN users op ON op.id = bcp.operator_id
     LEFT JOIN otdr_devices od ON od.id = bcp.otdr_device_id`;
 
+const READING_FROM = `FROM fiber_test_event_readings r
+    INNER JOIN fiber_test_events e ON e.id = r.event_id
+    LEFT JOIN batch_cable_profiles bcp ON bcp.id = e.batch_cable_profile_id`;
+
+const READING_COUNTS = `COUNT(*) AS readings,
+    COALESCE(SUM(r.in_range = 1), 0) AS in_range,
+    COALESCE(SUM(r.in_range = 0), 0) AS out_of_range,
+    COALESCE(SUM(r.in_range IS NULL), 0) AS no_limit`;
+
 /** Weights of the efficiency score (sum = 1). */
 const EFFICIENCY_WEIGHTS = { throughput: 0.5, quality: 0.3, retest: 0.2 } as const;
 const LIVE_WINDOW_MS = 10 * 60_000;
 const TREND_TOP_EMPLOYEES = 4;
+const LIMIT_SUMMARY_RUNS = 10;
+/** AI responses and test events written by the same request are stored within this window. */
+const UNLINKED_AI_RESPONSE_WINDOW_MS = 10_000;
 
 function num(value: unknown): number {
     const n = Number(value ?? 0);
@@ -114,6 +126,16 @@ function parseReadings(value: unknown): FiberWavelengthReading[] {
         }
     }
     return [];
+}
+
+/** mysql2 usually parses JSON columns already; older drivers/configs hand back the raw string. */
+function parseJsonValue(value: unknown): unknown {
+    if (typeof value !== 'string') return value ?? null;
+    try {
+        return JSON.parse(value);
+    } catch {
+        return value;
+    }
 }
 
 function minutesAgo(now: Date, minutes: number): Date {
@@ -895,6 +917,253 @@ export class ReportsService {
             result.set(s.id, this.statsFromEvaluations(items));
         }
         return result;
+    }
+
+    // ---------------------------------------------------------------- attenuation limit summary
+
+    /**
+     * In-range vs. out-of-range test counts per wavelength for a date range, overall and per cable
+     * run (batch session). Every reading of every test counts, retests included.
+     */
+    async getLimitSummary(q: ReportRangeQueryDto, actor: User | null) {
+        const range = resolveRange(q.from, q.to, q.granularity);
+        const where = this.eventWhere({
+            range,
+            plantId: this.resolvePlantScope(actor, q.plant_id),
+            operatorId: q.operator_id ?? null,
+            cableProfileId: q.cable_profile_id ?? null,
+        });
+
+        const [wavelengthRows, runRows] = await Promise.all([
+            this.query(
+                `SELECT r.wavelength_nm, ${READING_COUNTS},
+                    COALESCE(SUM(r.in_range = 0 AND r.measured_value > r.max_limit), 0) AS above_max,
+                    COALESCE(SUM(r.in_range = 0 AND r.measured_value < r.min_limit), 0) AS below_min,
+                    MIN(r.min_limit) AS min_limit_low, MAX(r.min_limit) AS min_limit_high,
+                    MIN(r.max_limit) AS max_limit_low, MAX(r.max_limit) AS max_limit_high
+                ${READING_FROM} ${where.sql}
+                GROUP BY r.wavelength_nm ORDER BY r.wavelength_nm`,
+                where.params,
+            ),
+            this.query(
+                `SELECT e.batch_cable_profile_id, r.wavelength_nm, ${READING_COUNTS},
+                    COUNT(DISTINCT e.id) AS tests, MAX(e.tested_at) AS last_test_at
+                ${READING_FROM} ${where.sql} AND e.batch_cable_profile_id IS NOT NULL
+                GROUP BY e.batch_cable_profile_id, r.wavelength_nm`,
+                where.params,
+            ),
+        ]);
+
+        const wavelengths = wavelengthRows.map((r) => num(r.wavelength_nm));
+        type Counts = { readings: number; in_range: number; out_of_range: number; no_limit: number };
+        const runs = new Map<number, Counts & { id: number; last_test_at: Date | null; by_wavelength: Map<number, Counts> }>();
+        for (const r of runRows) {
+            const id = num(r.batch_cable_profile_id);
+            const run = runs.get(id) ?? {
+                id,
+                readings: 0,
+                in_range: 0,
+                out_of_range: 0,
+                no_limit: 0,
+                last_test_at: null,
+                by_wavelength: new Map<number, Counts>(),
+            };
+            const counts = this.readingCounts(r);
+            run.readings += counts.readings;
+            run.in_range += counts.in_range;
+            run.out_of_range += counts.out_of_range;
+            run.no_limit += counts.no_limit;
+            const at = (r.last_test_at as Date | null) ?? null;
+            if (at && (!run.last_test_at || at > run.last_test_at)) run.last_test_at = at;
+            run.by_wavelength.set(num(r.wavelength_nm), counts);
+            runs.set(id, run);
+        }
+
+        const topRuns = [...runs.values()]
+            .sort(
+                (a, b) =>
+                    b.out_of_range - a.out_of_range ||
+                    (b.last_test_at?.getTime() ?? 0) - (a.last_test_at?.getTime() ?? 0),
+            )
+            .slice(0, LIMIT_SUMMARY_RUNS);
+        const sessionRows = topRuns.length
+            ? await this.query(
+                `SELECT ${SESSION_SELECT} FROM batch_cable_profiles bcp ${SESSION_JOINS} WHERE bcp.id IN (?)`,
+                [topRuns.map((r) => r.id) as unknown as SqlParam],
+            )
+            : [];
+        const sessionById = new Map(sessionRows.map((r) => [num(r.id), this.mapSession(r)]));
+        const emptyCounts: Counts = { readings: 0, in_range: 0, out_of_range: 0, no_limit: 0 };
+
+        const byWavelength = wavelengthRows.map((r) => {
+            const counts = this.readingCounts(r);
+            return {
+                wavelength_nm: num(r.wavelength_nm),
+                ...counts,
+                above_max: num(r.above_max),
+                below_min: num(r.below_min),
+                pass_rate: pct(counts.in_range, counts.in_range + counts.out_of_range),
+                min_limit_low: numOrNull(r.min_limit_low),
+                min_limit_high: numOrNull(r.min_limit_high),
+                max_limit_low: numOrNull(r.max_limit_low),
+                max_limit_high: numOrNull(r.max_limit_high),
+            };
+        });
+
+        return {
+            range: { from: range.fromDate, to: range.toDate },
+            totals: {
+                readings: byWavelength.reduce((sum, w) => sum + w.readings, 0),
+                in_range: byWavelength.reduce((sum, w) => sum + w.in_range, 0),
+                out_of_range: byWavelength.reduce((sum, w) => sum + w.out_of_range, 0),
+                no_limit: byWavelength.reduce((sum, w) => sum + w.no_limit, 0),
+                runs: runs.size,
+                runs_with_out_of_range: [...runs.values()].filter((r) => r.out_of_range > 0).length,
+            },
+            by_wavelength: byWavelength,
+            runs: topRuns.map((run) => ({
+                ...(sessionById.get(run.id) ?? this.mapSession({ id: run.id })),
+                readings: run.readings,
+                in_range: run.in_range,
+                out_of_range: run.out_of_range,
+                no_limit: run.no_limit,
+                last_test_at: run.last_test_at,
+                by_wavelength: wavelengths.map((nm) => ({
+                    wavelength_nm: nm,
+                    ...(run.by_wavelength.get(nm) ?? emptyCounts),
+                })),
+            })),
+        };
+    }
+
+    private readingCounts(r: RawRow) {
+        return {
+            readings: num(r.readings),
+            in_range: num(r.in_range),
+            out_of_range: num(r.out_of_range),
+            no_limit: num(r.no_limit),
+        };
+    }
+
+    // ---------------------------------------------------------------- fiber test history
+
+    /** Every logged test of one fiber, newest first, with its AI prediction and whether a photo was kept. */
+    async getFiberTestHistory(fiberTestingId: number, actor: User | null) {
+        const plantId = this.resolvePlantScope(actor);
+        const [fiber] = await this.query(
+            `SELECT f.id, f.fiber_number, f.batch_cable_profile_id,
+                f.attribute1_name, f.attribute1_value, f.attribute2_name, f.attribute2_value,
+                f.attribute3_name, f.attribute3_value
+            FROM batch_fiber_testing f
+            LEFT JOIN batch_cable_profiles bcp ON bcp.id = f.batch_cable_profile_id
+            WHERE f.id = ? ${plantId ? 'AND bcp.plant_id = ?' : ''}`,
+            plantId ? [fiberTestingId, plantId] : [fiberTestingId],
+        );
+        if (!fiber) {
+            throw new NotFoundException(`Fiber #${fiberTestingId} not found`);
+        }
+
+        const events = await this.query(
+            `SELECT e.id, e.attempt, e.result, e.tested_at, e.wavelengths_tested, e.wavelengths_out_of_range,
+                e.is_backfilled, e.image_path IS NOT NULL AS has_image, u.first_name, u.last_name
+            FROM fiber_test_events e
+            LEFT JOIN users u ON u.id = e.tested_by_id
+            WHERE e.batch_fiber_testing_id = ?
+            ORDER BY e.tested_at DESC, e.id DESC`,
+            [fiberTestingId],
+        );
+        const eventIds = events.map((e) => num(e.id));
+        const [readingRows, aiRows] = await Promise.all([
+            eventIds.length
+                ? this.query(
+                    `SELECT event_id, wavelength_nm, measured_value, min_limit, max_limit, in_range
+                    FROM fiber_test_event_readings WHERE event_id IN (?) ORDER BY wavelength_nm`,
+                    [eventIds as unknown as SqlParam],
+                )
+                : Promise.resolve([] as RawRow[]),
+            this.query(
+                `SELECT fiber_test_event_id, ai_response, created_at
+                FROM fiber_testing_ai_response WHERE batch_fiber_testing_id = ?
+                ORDER BY created_at, id`,
+                [fiberTestingId],
+            ),
+        ]);
+
+        const aiByEvent = new Map<number, unknown>();
+        const unlinked: RawRow[] = [];
+        for (const a of aiRows) {
+            if (a.fiber_test_event_id) aiByEvent.set(num(a.fiber_test_event_id), parseJsonValue(a.ai_response));
+            else unlinked.push(a);
+        }
+        // Responses stored before they were linked to a test: pair each with the test logged in the same request.
+        for (const a of unlinked) {
+            const at = new Date(a.created_at as Date).getTime();
+            const match = events.find(
+                (e) =>
+                    !aiByEvent.has(num(e.id)) &&
+                    Math.abs(new Date(e.tested_at as Date).getTime() - at) <= UNLINKED_AI_RESPONSE_WINDOW_MS,
+            );
+            if (match) aiByEvent.set(num(match.id), parseJsonValue(a.ai_response));
+        }
+
+        const readingsByEvent = new Map<number, RawRow[]>();
+        for (const r of readingRows) {
+            const list = readingsByEvent.get(num(r.event_id)) ?? [];
+            list.push(r);
+            readingsByEvent.set(num(r.event_id), list);
+        }
+
+        return {
+            fiber: {
+                id: num(fiber.id),
+                fiber_number: num(fiber.fiber_number),
+                batch_cable_profile_id: numOrNull(fiber.batch_cable_profile_id),
+                attributes: ([1, 2, 3] as const)
+                    .map((i) => ({
+                        name: String(fiber[`attribute${i}_name`] ?? '').trim(),
+                        value: String(fiber[`attribute${i}_value`] ?? ''),
+                    }))
+                    .filter((a) => a.name),
+            },
+            tests: events.map((e) => ({
+                id: num(e.id),
+                attempt: num(e.attempt),
+                result: String(e.result),
+                tested_at: e.tested_at as Date,
+                tested_by: personName(e.first_name, e.last_name),
+                wavelengths_tested: num(e.wavelengths_tested),
+                wavelengths_out_of_range: num(e.wavelengths_out_of_range),
+                is_backfilled: !!num(e.is_backfilled),
+                has_image: !!num(e.has_image),
+                ai_response: aiByEvent.get(num(e.id)) ?? null,
+                readings: (readingsByEvent.get(num(e.id)) ?? []).map((r) => ({
+                    wavelength_nm: num(r.wavelength_nm),
+                    value: numOrNull(r.measured_value),
+                    min: numOrNull(r.min_limit),
+                    max: numOrNull(r.max_limit),
+                    in_range: r.in_range === null ? null : !!num(r.in_range),
+                })),
+            })),
+        };
+    }
+
+    /** Where a test's photo is stored; 404 when the test has none or belongs to another plant. */
+    async getTestImage(eventId: number, actor: User | null): Promise<{ path: string; mimeType: string }> {
+        const plantId = this.resolvePlantScope(actor);
+        const [row] = await this.query(
+            `SELECT e.image_path, e.image_mime_type
+            FROM fiber_test_events e
+            LEFT JOIN batch_cable_profiles bcp ON bcp.id = e.batch_cable_profile_id
+            WHERE e.id = ? ${plantId ? 'AND bcp.plant_id = ?' : ''}`,
+            plantId ? [eventId, plantId] : [eventId],
+        );
+        if (!row?.image_path) {
+            throw new NotFoundException('No photo was stored for this test');
+        }
+        return {
+            path: String(row.image_path),
+            mimeType: String(row.image_mime_type || 'application/octet-stream'),
+        };
     }
 
     // ---------------------------------------------------------------- live status

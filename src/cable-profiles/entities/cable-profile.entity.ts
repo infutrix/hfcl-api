@@ -12,11 +12,7 @@ import {
 import { User } from '../../users/entities/user.entity';
 import { CableType } from './cable-type.entity';
 import { CableProfileWavelengthConfig } from './cable-profile-wavelength-config.entity';
-
-import cableProfileColorsJson = require('../cable-profile-colors.data.json');
-
-/** One row from cable-profile-colors.data.json (not a DB column). */
-export type CableProfileColorJsonEntry = (typeof cableProfileColorsJson)['profiles'][number];
+import { CableProfileStructure, ColorProfile } from '../cable-profile-structure';
 
 export enum CableProfileStatus {
     ACTIVE = 'active',
@@ -38,6 +34,13 @@ export class CableProfile {
 
     @Column({ type: 'varchar', length: 255, unique: true })
     profile_key_value: string;
+
+    /**
+     * Admin-defined fiber layout and colors. Null for profiles that still use the built-in
+     * template with the same `profile_key_value` (cable-profile-colors.data.json).
+     */
+    @Column({ name: 'structure', type: 'json', nullable: true, default: null })
+    structure: CableProfileStructure | null;
 
     @Column({ name: 'status', type: 'boolean', default: true })
     status: boolean;
@@ -64,6 +67,6 @@ export class CableProfile {
     @OneToMany(() => CableProfileWavelengthConfig, (config) => config.cable_profile)
     wavelength_configs: CableProfileWavelengthConfig[];
 
-    /** Matched entry from cable-profile-colors.data.json; set by CableProfilesService.findAll / findOne only. */
-    colorProfile?: CableProfileColorJsonEntry | null;
+    /** Resolved `structure` (or matching built-in template); set by CableProfilesService.findAll / findOne only. */
+    colorProfile?: ColorProfile | null;
 }

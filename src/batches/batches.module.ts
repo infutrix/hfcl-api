@@ -26,6 +26,7 @@ import { CableProfileWavelengthConfig } from '../cable-profiles/entities/cable-p
 import { FiberTestEventBackfillService } from './fiber-test-event-backfill.service';
 import { BatchCableWavelengthTestingController } from './batch-cable-wavelength-testing.controller';
 import { BatchCableWavelengthTestingService } from './batch-cable-wavelength-testing.service';
+import { FiberTestImageStorage } from './fiber-test-image.storage';
 
 @Module({
     imports: [
@@ -61,6 +62,7 @@ import { BatchCableWavelengthTestingService } from './batch-cable-wavelength-tes
         BatchPhysicalParamsService,
         BatchCableWavelengthTestingService,
         FiberTestEventBackfillService,
+        FiberTestImageStorage,
     ],
     exports: [
         BatchesService,
@@ -69,6 +71,7 @@ import { BatchCableWavelengthTestingService } from './batch-cable-wavelength-tes
         VernierNosService,
         BatchPhysicalParamsService,
         BatchCableWavelengthTestingService,
+        FiberTestImageStorage,
     ],
 })
 export class BatchesModule { }

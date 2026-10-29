@@ -21,8 +21,8 @@ import {
     FiberTestingTableHeaderDto,
 } from './dto/fiber-testing-saved-table.dto';
 import { batchCableProfileDetailRelations } from './batch-cable-profile.relations';
-
-import cableProfileColors = require('../cable-profiles/cable-profile-colors.data.json');
+import { FiberTestImageStorage, UploadedImage } from './fiber-test-image.storage';
+import { ColorProfile as ColorProfileJson, resolveColorProfile, TubeColors } from '../cable-profiles/cable-profile-structure';
 
 /** UI column titles for known `attribute*_name` values (matches fiber testing grid). */
 const ATTRIBUTE_HEADER_LABELS: Record<string, string> = {
@@ -38,31 +38,6 @@ function headerLabelForAttribute(name: string | null): string {
     if (!name?.trim()) return '';
     const k = name.trim().toLowerCase();
     return ATTRIBUTE_HEADER_LABELS[k] ?? name.trim().toUpperCase();
-}
-
-type TubeColors = { innerLayer: string[]; outerLayer: string[] };
-
-type PhysicalDimensionFieldJson = {
-    key: string;
-    value: number;
-};
-
-type ColorProfileJson = {
-    cable_type: string;
-    profile_key_value: string;
-    strandCount?: number;
-    ribbonCount?: number;
-    fiberCount?: number;
-    tubeCount?: number;
-    strandColors?: string[];
-    fiberColors: string[];
-    tubeColors?: TubeColors;
-    physical_dimensions?: PhysicalDimensionFieldJson[][];
-};
-
-function findColorProfile(profileKeyValue: string): ColorProfileJson | undefined {
-    const list = (cableProfileColors as { profiles: ColorProfileJson[] }).profiles;
-    return list.find((p) => p.profile_key_value === profileKeyValue);
 }
 
 function tubeColorAtIndex(tubeIndex1Based: number, tubes: TubeColors): string {
@@ -93,6 +68,7 @@ export class BatchFiberTestingService {
         @InjectRepository(BatchFiberTesting)
         private readonly batchFiberTestingRepository: Repository<BatchFiberTesting>,
         private readonly dataSource: DataSource,
+        private readonly imageStorage: FiberTestImageStorage,
     ) { }
 
     /** Saved rows, table headers, and batch cable profile (including nested cable profile). */
@@ -110,8 +86,7 @@ export class BatchFiberTestingService {
             throw new BadRequestException('Batch cable profile has no cable_profile linked');
         }
 
-        const profileKey = cableProfile.profile_key_value;
-        const colorProfile = findColorProfile(profileKey) ?? null;
+        const colorProfile = resolveColorProfile(cableProfile);
 
         const rows = await this.batchFiberTestingRepository.find({
             where: { batch_cable_profile: { id: batchCableProfileId } },
@@ -225,7 +200,8 @@ export class BatchFiberTestingService {
 
     /**
      * Builds the full strand × ribbon × fiber (or tube layouts) matrix with empty measurements,
-     * using cable-profile-colors.data.json for coloring rules and wavelength_configs for λ list.
+     * using the cable profile's structure (or its built-in template) for coloring rules and
+     * wavelength_configs for λ list.
      */
     async buildFiberTestingMatrix(batchCableProfileId: number): Promise<FiberTestingMatrixRowDto[]> {
         const bcp = await this.batchCableProfileRepository.findOne({
@@ -244,11 +220,10 @@ export class BatchFiberTestingService {
             throw new BadRequestException('Batch cable profile has no cable_profile linked');
         }
 
-        const profileKey = cableProfile.profile_key_value;
-        const colorProfile = findColorProfile(profileKey);
+        const colorProfile = resolveColorProfile(cableProfile);
         if (!colorProfile) {
             throw new BadRequestException(
-                `No color definition in cable-profile-colors.data.json for profile_key_value "${profileKey}"`,
+                `Cable profile "${cableProfile.cable_profile_name}" has no fiber structure defined; edit it in Cable Profile Management`,
             );
         }
 
@@ -398,11 +373,12 @@ export class BatchFiberTestingService {
         return rows;
     }
 
-    /** Update wavelength readings, bump testing_counter, and store AI response. */
+    /** Update wavelength readings, bump testing_counter, and store the AI response and fiber photo. */
     async updateBatchFiberTesting(
         id: number,
         dto: UpdateBatchFiberTestingDto,
         actor?: User | null,
+        image?: UploadedImage,
     ): Promise<BatchFiberTesting> {
         const row = await this.batchFiberTestingRepository.findOne({
             where: { id },
@@ -432,6 +408,29 @@ export class BatchFiberTestingService {
             ? await this.buildTestEvent(row, dto, actor ?? null)
             : null;
 
+        // The photo belongs to the test event; rows without a session have no event to keep it on.
+        if (testEvent && image) {
+            testEvent.image_path = await this.imageStorage.save(image, row.batch_cable_profile!.id);
+            testEvent.image_mime_type = image.mimetype;
+        }
+
+        try {
+            await this.persistTest(row, testEvent, parsedAiResponse);
+        } catch (error) {
+            if (testEvent?.image_path) {
+                await this.imageStorage.remove(testEvent.image_path);
+            }
+            throw error;
+        }
+
+        return this.batchFiberTestingRepository.findOneOrFail({ where: { id } });
+    }
+
+    private async persistTest(
+        row: BatchFiberTesting,
+        testEvent: FiberTestEvent | null,
+        parsedAiResponse: Record<string, unknown> | unknown[] | null,
+    ): Promise<void> {
         await this.dataSource.transaction(async (manager) => {
             await manager.save(BatchFiberTesting, row);
 
@@ -454,13 +453,12 @@ export class BatchFiberTestingService {
                         ? ({ id: row.batch_cable_profile.id } as BatchCableProfile)
                         : null,
                     batch_fiber_testing: { id: row.id } as BatchFiberTesting,
+                    fiber_test_event: testEvent ? ({ id: testEvent.id } as FiberTestEvent) : null,
                     ai_response: parsedAiResponse,
                 });
                 await manager.save(FiberTestingAiResponse, aiRow);
             }
         });
-
-        return this.batchFiberTestingRepository.findOneOrFail({ where: { id } });
     }
 
     /**

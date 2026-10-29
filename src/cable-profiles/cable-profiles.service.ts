@@ -1,6 +1,6 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, In, Repository } from 'typeorm';
+import { DataSource, In, Not, Repository } from 'typeorm';
 import { CableProfile } from './entities/cable-profile.entity';
 import { CableProfileWavelengthConfig } from './entities/cable-profile-wavelength-config.entity';
 import { CableType } from './entities/cable-type.entity';
@@ -10,9 +10,17 @@ import { CreateCableProfileDto } from './dto/create-cable-profile.dto';
 import { UpdateCableProfileDto } from './dto/update-cable-profile.dto';
 import { AuditService } from '../audit/audit.service';
 import { AuditAction } from '../audit/entities/audit-log.entity';
-import cableProfileColors = require('./cable-profile-colors.data.json');
+import {
+    CableProfileStructure,
+    ColorProfile,
+    findColorTemplate,
+    listColorTemplates,
+    normalizeStructure,
+    resolveColorProfile,
+    validateStructure,
+} from './cable-profile-structure';
 
-export type CableProfileColorsResponse = typeof cableProfileColors;
+export type CableProfileColorsResponse = { profiles: ColorProfile[] };
 
 @Injectable()
 export class CableProfilesService {
@@ -26,6 +34,14 @@ export class CableProfilesService {
     ) { }
 
     async create(dto: CreateCableProfileDto, actorId?: number): Promise<CableProfile> {
+        const structure = dto.structure ? this.checkedStructure(dto.structure) : null;
+        if (!structure && !findColorTemplate(dto.profile_key_value)) {
+            throw new BadRequestException(
+                `Define the cable structure: "${dto.profile_key_value}" is not a built-in profile template`,
+            );
+        }
+        await this.assertUnique(dto.cable_profile_name, dto.profile_key_value);
+
         const queryRunner = this.dataSource.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
@@ -34,6 +50,7 @@ export class CableProfilesService {
                 cable_profile_name: dto.cable_profile_name,
                 cable_type: dto.cable_type_id ? { id: dto.cable_type_id } as CableType : undefined,
                 profile_key_value: dto.profile_key_value,
+                structure,
                 status: dto.status,
                 created_by: actorId ? { id: actorId } as User : undefined,
                 modified_by: actorId ? { id: actorId } as User : undefined,
@@ -100,6 +117,8 @@ export class CableProfilesService {
     async update(id: number, dto: UpdateCableProfileDto, actorId?: number): Promise<CableProfile> {
         const profile = await this.findOne(id);
         const oldValues = { ...profile };
+        const structure = dto.structure ? this.checkedStructure(dto.structure) : undefined;
+        await this.assertUnique(dto.cable_profile_name, dto.profile_key_value, id);
 
         const queryRunner = this.dataSource.createQueryRunner();
         await queryRunner.connect();
@@ -108,6 +127,7 @@ export class CableProfilesService {
             if (dto.cable_profile_name !== undefined) profile.cable_profile_name = dto.cable_profile_name;
             if (dto.cable_type_id !== undefined) profile.cable_type = { id: dto.cable_type_id } as CableType;
             if (dto.profile_key_value !== undefined) profile.profile_key_value = dto.profile_key_value as any;
+            if (structure) profile.structure = structure;
             if (dto.status !== undefined) profile.status = dto.status;
             if (actorId) profile.modified_by = { id: actorId } as User;
             const saved = await queryRunner.manager.save(profile);
@@ -169,14 +189,32 @@ export class CableProfilesService {
         });
     }
 
-    /** Static color definitions (see cable-profile-colors.data.json). */
+    /** Built-in templates (cable-profile-colors.data.json) used to prefill a new profile's structure. */
     getCableProfileColors(): CableProfileColorsResponse {
-        return cableProfileColors;
+        return { profiles: listColorTemplates() };
     }
 
     private withColorProfile<T extends CableProfile>(profile: T): T {
-        const match = cableProfileColors.profiles.find((e) => e.profile_key_value === profile.profile_key_value);
-        profile.colorProfile = match ?? null;
+        profile.colorProfile = resolveColorProfile(profile);
         return profile;
+    }
+
+    private checkedStructure(structure: CableProfileStructure): CableProfileStructure {
+        const errors = validateStructure(structure);
+        if (errors.length) {
+            throw new BadRequestException(errors.join('; '));
+        }
+        return normalizeStructure(structure);
+    }
+
+    /** Clear 409s instead of a raw duplicate-key error from the unique indexes. */
+    private async assertUnique(name: string | undefined, key: string | undefined, exceptId?: number): Promise<void> {
+        const idFilter = exceptId ? { id: Not(exceptId) } : {};
+        if (name !== undefined && (await this.cableProfileRepository.exists({ where: { cable_profile_name: name, ...idFilter } }))) {
+            throw new ConflictException(`A cable profile named "${name}" already exists`);
+        }
+        if (key !== undefined && (await this.cableProfileRepository.exists({ where: { profile_key_value: key, ...idFilter } }))) {
+            throw new ConflictException(`Profile key "${key}" is already used by another cable profile`);
+        }
     }
 }
