@@ -1,10 +1,11 @@
 import {
     BadRequestException,
     Injectable,
+    Logger,
     NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, QueryFailedError, Repository } from 'typeorm';
 import { CableProfileWavelengthConfig } from '../cable-profiles/entities/cable-profile-wavelength-config.entity';
 import { CableProfile } from '../cable-profiles/entities/cable-profile.entity';
 import { BatchCableProfile, BatchCableProfileStatus } from './entities/batch-cable-profile.entity';
@@ -59,9 +60,18 @@ function tubeTypeAtIndex(tubeIndex1Based: number, tubes: TubeColors): 'Inner' | 
 }
 
 const SAVE_CHUNK_SIZE = 400;
+/** Attempts at writing a session's fiber grid before a deadlock is reported. */
+const MATRIX_SAVE_ATTEMPTS = 3;
+
+function isDeadlock(error: unknown): boolean {
+    const code = (error as QueryFailedError & { driverError?: { code?: string } })?.driverError?.code;
+    return error instanceof QueryFailedError && (code === 'ER_LOCK_DEADLOCK' || code === 'ER_LOCK_WAIT_TIMEOUT');
+}
 
 @Injectable()
 export class BatchFiberTestingService {
+    private readonly logger = new Logger(BatchFiberTestingService.name);
+
     constructor(
         @InjectRepository(BatchCableProfile)
         private readonly batchCableProfileRepository: Repository<BatchCableProfile>,
@@ -165,37 +175,51 @@ export class BatchFiberTestingService {
     async saveFiberTestingMatrix(batchCableProfileId: number): Promise<boolean> {
         const matrix = await this.buildFiberTestingMatrix(batchCableProfileId);
 
-        const entities: BatchFiberTesting[] = matrix.map((row) => {
-            const e = new BatchFiberTesting();
-            e.batch_cable_profile = { id: batchCableProfileId } as BatchCableProfile;
-            e.fiber_number = row.fiber_number;
-            e.attribute1_name = row.attribute1_name || null;
-            e.attribute1_value = row.attribute1_value || null;
-            e.attribute2_name = row.attribute2_name || null;
-            e.attribute2_value = row.attribute2_value || null;
-            e.attribute3_name = row.attribute3_name || null;
-            e.attribute3_value = row.attribute3_value || null;
-            e.fiber_wavelengths = row.waveLengths.map((w) => ({ ...w }));
-            e.testing_counter = 0;
-            e.status = true;
-            return e;
-        });
+        // InnoDB may still pick this transaction as a deadlock victim when sessions are created at
+        // the same moment; the work is idempotent, so retrying is safe.
+        for (let attempt = 1; ; attempt++) {
+            try {
+                await this.replaceFiberRows(batchCableProfileId, matrix);
+                return true;
+            } catch (error) {
+                if (!isDeadlock(error) || attempt >= MATRIX_SAVE_ATTEMPTS) throw error;
+                this.logger.warn(`Deadlock writing fiber grid of session #${batchCableProfileId}; retry ${attempt}`);
+                await new Promise((resolve) => setTimeout(resolve, 100 * attempt + Math.random() * 100));
+            }
+        }
+    }
+
+    private async replaceFiberRows(batchCableProfileId: number, matrix: FiberTestingMatrixRowDto[]): Promise<void> {
+        const rows = matrix.map((row) => ({
+            batch_cable_profile: { id: batchCableProfileId } as BatchCableProfile,
+            fiber_number: row.fiber_number,
+            attribute1_name: row.attribute1_name || null,
+            attribute1_value: row.attribute1_value || null,
+            attribute2_name: row.attribute2_name || null,
+            attribute2_value: row.attribute2_value || null,
+            attribute3_name: row.attribute3_name || null,
+            attribute3_value: row.attribute3_value || null,
+            fiber_wavelengths: row.waveLengths.map((w) => ({ ...w })),
+            testing_counter: 0,
+            status: true,
+        }));
 
         await this.dataSource.transaction(async (manager) => {
-            await manager
-                .createQueryBuilder()
-                .delete()
-                .from(BatchFiberTesting)
-                .where('batch_cable_profile_id = :id', { id: batchCableProfileId })
-                .execute();
+            // Delete by primary key, and only when rows exist. `DELETE ... WHERE batch_cable_profile_id = ?`
+            // on a new session matches nothing but gap-locks the end of that index, so sessions created
+            // together each blocked the others' inserts and deadlocked.
+            const existing = await manager.find(BatchFiberTesting, {
+                select: { id: true },
+                where: { batch_cable_profile: { id: batchCableProfileId } },
+            });
+            for (let i = 0; i < existing.length; i += SAVE_CHUNK_SIZE) {
+                await manager.delete(BatchFiberTesting, { id: In(existing.slice(i, i + SAVE_CHUNK_SIZE).map((r) => r.id)) });
+            }
 
-            for (let i = 0; i < entities.length; i += SAVE_CHUNK_SIZE) {
-                const chunk = entities.slice(i, i + SAVE_CHUNK_SIZE);
-                await manager.save(BatchFiberTesting, chunk);
+            for (let i = 0; i < rows.length; i += SAVE_CHUNK_SIZE) {
+                await manager.insert(BatchFiberTesting, rows.slice(i, i + SAVE_CHUNK_SIZE));
             }
         });
-
-        return true;
     }
 
     /**
