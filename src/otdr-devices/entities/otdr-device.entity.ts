@@ -41,6 +41,10 @@ export class OtdrDevice {
     @Column({ name: 'plant_id', type: 'int' })
     plant_id: number;
 
+    /** Next calibration due date (YYYY-MM-DD); shown in the admin panel only, not on test reports. */
+    @Column({ name: 'calibration_due_date', type: 'date', nullable: true, default: null })
+    calibration_due_date: string | null;
+
     @Column({ name: 'status', type: 'boolean', default: true })
     status: boolean;
 

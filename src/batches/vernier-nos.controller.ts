@@ -77,7 +77,7 @@ export class VernierNosController {
 
     @Delete(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
-    @ApiOperation({ summary: 'Delete a vernier number' })
+    @ApiOperation({ summary: 'Delete a vernier number (soft delete; past records keep it)' })
     @ApiParam({ name: 'id', type: Number })
     @ApiResponse({ status: 204, description: 'Deleted.' })
     async remove(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User | null): Promise<void> {

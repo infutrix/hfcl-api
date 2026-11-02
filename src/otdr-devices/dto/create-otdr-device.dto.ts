@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
     IsBoolean,
+    IsDateString,
     IsInt,
     IsIP,
     IsNotEmpty,
@@ -50,6 +51,11 @@ export class CreateOtdrDeviceDto {
     @ApiProperty({ example: 1, description: 'ID of the assigned plant (plants.id)' })
     @IsInt()
     plant_id: number;
+
+    @ApiPropertyOptional({ example: '2027-03-19', description: 'Next calibration due date (YYYY-MM-DD); null clears it' })
+    @IsOptional()
+    @IsDateString({ strict: true })
+    calibration_due_date?: string | null;
 
     @ApiPropertyOptional({ example: true, description: 'Status: true = active, false = inactive' })
     @IsOptional()
