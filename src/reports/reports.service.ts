@@ -677,7 +677,16 @@ export class ReportsService {
             throw new NotFoundException(`Batch session #${id} not found`);
         }
 
-        const limits = buildWavelengthLimits(bcp.cable_profile?.wavelength_configs ?? []);
+        const configs = bcp.cable_profile?.wavelength_configs ?? [];
+        const limits = buildWavelengthLimits(configs);
+        // IOR per nm (stored in the `gri` columns); the profile's value wins over the global wavelength's.
+        const iorByNm = new Map<number, number | null>();
+        for (const c of configs) {
+            const nm = numOrNull(c.cable_wavelength?.value ?? c.wavelength);
+            if (nm !== null) iorByNm.set(nm, numOrNull(c.gri) ?? numOrNull(c.cable_wavelength?.gri));
+        }
+        const physical = bcp.physical_params;
+
         const [rows, testerRows] = await Promise.all([
             this.fiberTestingRepository.find({
                 where: { batch_cable_profile: { id } },
@@ -746,7 +755,31 @@ export class ReportsService {
                 sfg_stage_name: bcp.sfg_stage?.name ?? null,
                 operator_name: bcp.operator ? personName(bcp.operator.first_name, bcp.operator.last_name) : null,
                 otdr_device_name: bcp.otdr_device?.device_name ?? null,
+                otdr_serial_number: bcp.otdr_device?.serial_number ?? null,
             },
+            physical_params: physical
+                ? {
+                    vernier_no: physical.vernier?.vernier_no ?? null,
+                    iem: physical.iem,
+                    oem_length_of_sfg_m: numOrNull(physical.oem_length_of_sfg_m),
+                    inner_sheath_mm: numOrNull(physical.inner_sheath_mm),
+                    outer_sheath_mm: numOrNull(physical.outer_sheath_mm),
+                    cable_dia_mm: numOrNull(physical.cable_dia_mm),
+                    tube_id_od_mm: numOrNull(physical.tube_id_od_nm),
+                    frp_dia_mm: numOrNull(physical.frp_dia_nm),
+                    visual_inspection: physical.visual_inspection,
+                    wpt: physical.wpt,
+                    wpt_drip: physical.wpt_drip,
+                    sheath_removal: physical.sheath_removal_r_lc,
+                    stripability: physical.stripability_rib_separation,
+                    ribbon_rub_test: physical.ribbon_rub_test,
+                    ribbon_stiffness: physical.ribbon_stiffness,
+                    ribbon_separation: physical.ribbon_separation,
+                    ribbon_print_quality: physical.ribbon_print_qty,
+                    remark: physical.remark,
+                    status: physical.status,
+                }
+                : null,
             limits: wavelengthList.map((nm) => {
                 const limit = limits.get(nm);
                 return {
@@ -754,6 +787,7 @@ export class ReportsService {
                     min: limit?.min ?? null,
                     max: limit?.max ?? null,
                     unit: limit?.unit ?? 'dB/km',
+                    ior: iorByNm.get(nm) ?? null,
                 };
             }),
             attribute_labels: attributeLabels,
