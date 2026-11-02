@@ -22,6 +22,9 @@ import { BatchCableProfile } from '../../batches/entities/batch-cable-profile.en
 import { BatchFiberTesting } from '../../batches/entities/batch-fiber-testing.entity';
 import { BatchFiberTestingService } from '../../batches/batch-fiber-testing.service';
 import { FiberTestImageStorage } from '../../batches/fiber-test-image.storage';
+import { existsSync, mkdirSync, rmSync, writeFileSync } from 'fs';
+import { join } from 'path';
+import { demoAiResponse, demoFiber, fiberPhotoPng, photoKey } from './demo-fiber-media';
 import { CableProfileWavelengthConfig } from '../../cable-profiles/entities/cable-profile-wavelength-config.entity';
 import { buildWavelengthLimits, WavelengthLimit } from '../../batches/wavelength-range.util';
 import { toLocalSqlDateTime } from '../../reports/report-range.util';
@@ -100,6 +103,28 @@ async function bulkInsert(ds: DataSource, table: string, columns: string[], rows
 
 const sqlTime = (d: Date) => toLocalSqlDateTime(d);
 
+// ---------------------------------------------------------------- dummy photos
+
+/** Demo photos live in their own folder under the image store, shared by every test of the same colours. */
+const DEMO_IMAGE_FOLDER = 'demo';
+/** Share of demo tests whose AI call is deliberately wrong, so the photo check has something to catch. */
+const AI_MISREAD_RATE = 0.04;
+
+function demoImageDir(): string {
+    return join(new FiberTestImageStorage(new ConfigService()).root, DEMO_IMAGE_FOLDER);
+}
+
+/** Writes each colour combination's photo once and returns its path relative to the image store. */
+function demoPhotoPath(dir: string, outer: string | null, fiber: string, key: string): string {
+    const file = `${key}.png`;
+    const absolute = join(dir, file);
+    if (!existsSync(absolute)) {
+        mkdirSync(dir, { recursive: true });
+        writeFileSync(absolute, fiberPhotoPng(outer, fiber));
+    }
+    return `${DEMO_IMAGE_FOLDER}/${file}`;
+}
+
 // ---------------------------------------------------------------- clean
 
 async function clean(ds: DataSource) {
@@ -129,7 +154,8 @@ async function clean(ds: DataSource) {
         [`%@${DEMO_DOMAIN}`],
     );
     const users = await ds.query(`DELETE FROM users WHERE email LIKE ?`, [`%@${DEMO_DOMAIN}`]);
-    console.log(`Removed ${ids.length} demo sessions and ${users.affectedRows ?? 0} demo users.`);
+    rmSync(demoImageDir(), { recursive: true, force: true });
+    console.log(`Removed ${ids.length} demo sessions, ${users.affectedRows ?? 0} demo users and the demo photos.`);
 }
 
 // ---------------------------------------------------------------- seed
@@ -274,7 +300,14 @@ function nextTime(t: Date, tester: Tester, live: boolean): Date {
     return next;
 }
 
-async function seedSession(ds: DataSource, svc: BatchFiberTestingService, refs: Refs, plan: PlannedSession, index: number) {
+async function seedSession(
+    ds: DataSource,
+    svc: BatchFiberTestingService,
+    refs: Refs,
+    plan: PlannedSession,
+    index: number,
+    imageDir: string,
+) {
     const code = String(index + 1).padStart(4, '0');
     const batchName = `${DEMO_PREFIX}26-B${code}`;
     const drum = `${DEMO_PREFIX}DRM-${code}`;
@@ -391,6 +424,13 @@ async function seedSession(ds: DataSource, svc: BatchFiberTestingService, refs: 
         [sessionId],
     );
 
+    const demoFibers = matrix.map((m) => demoFiber(m));
+    const photoPaths = demoFibers.map((f) => {
+        const p = photoKey(f);
+        return demoPhotoPath(imageDir, p.outer, p.fiber, p.key);
+    });
+    const fiberColours = [...new Set(demoFibers.map((f) => f.fiber))];
+
     await bulkInsert(
         ds,
         'fiber_test_events',
@@ -405,6 +445,8 @@ async function seedSession(ds: DataSource, svc: BatchFiberTestingService, refs: 
             'wavelengths_out_of_range',
             'is_backfilled',
             'tested_at',
+            'image_path',
+            'image_mime_type',
         ],
         events.map((e) => {
             const out = WAVELENGTHS.filter((nm) => {
@@ -423,6 +465,8 @@ async function seedSession(ds: DataSource, svc: BatchFiberTestingService, refs: 
                 out,
                 0,
                 sqlTime(e.at),
+                photoPaths[e.fiber],
+                'image/png',
             ];
         }),
     );
@@ -446,6 +490,21 @@ async function seedSession(ds: DataSource, svc: BatchFiberTestingService, refs: 
         1000,
     );
 
+    // One AI prediction per test, linked to it like the testing app's submissions.
+    await bulkInsert(
+        ds,
+        'fiber_testing_ai_response',
+        ['batch_cable_profile_id', 'batch_fiber_testing_id', 'fiber_test_event_id', 'ai_response', 'created_at', 'modified_at'],
+        events.map((e, i) => {
+            const f = demoFibers[e.fiber];
+            const others = fiberColours.filter((c) => c !== f.fiber);
+            const misread = others.length && chance(AI_MISREAD_RATE) ? { wrongColour: pick(others) } : null;
+            const at = sqlTime(e.at);
+            const response = demoAiResponse(f, Math.round(between(0.86, 0.995) * 1000) / 1000, misread);
+            return [sessionId, fiberIds[e.fiber].id, eventIds[i].id, JSON.stringify(response), at, at];
+        }),
+    );
+
     const tested = fibers.filter((f) => f.attempts > 0).length;
     const status = tested === 0 ? 0 : tested === matrix.length ? 2 : 1;
     const lastAt = events.length ? sqlTime(events[events.length - 1].at) : created;
@@ -467,10 +526,11 @@ async function seed(ds: DataSource) {
         ds,
         new FiberTestImageStorage(new ConfigService()),
     );
+    const imageDir = demoImageDir();
     const plans = planSessions(refs, new Date());
     let totalEvents = 0;
     for (let i = 0; i < plans.length; i++) {
-        const r = await seedSession(ds, svc, refs, plans[i], i);
+        const r = await seedSession(ds, svc, refs, plans[i], i, imageDir);
         totalEvents += r.events;
         const label = ['pending', 'in progress', 'completed'][r.status];
         console.log(

@@ -34,7 +34,8 @@ export function isSupportedImageMime(mime: string | undefined): boolean {
 @Injectable()
 export class FiberTestImageStorage {
     private readonly logger = new Logger(FiberTestImageStorage.name);
-    private readonly root: string;
+    /** Absolute storage directory; image paths in the database are relative to it. */
+    readonly root: string;
 
     constructor(config: ConfigService) {
         this.root = resolve(
