@@ -61,7 +61,8 @@ const SESSION_SELECT = `bcp.id, bcp.batch_name, bcp.drum_number, bcp.fiber_type,
     b.batch_name AS batch, cp.name AS cable_profile_name, ct.name AS cable_type_name,
     c.name AS customer_name, p.plant_name, s.name AS sfg_stage_name,
     op.first_name AS operator_first_name, op.last_name AS operator_last_name,
-    od.device_name AS otdr_device_name`;
+    od.device_name AS otdr_device_name, bcp.verified_at,
+    vu.first_name AS verified_by_first_name, vu.last_name AS verified_by_last_name`;
 
 const SESSION_JOINS = `LEFT JOIN batches b ON b.id = bcp.batch_id
     LEFT JOIN cable_profiles cp ON cp.id = bcp.cable_profile_id
@@ -70,7 +71,8 @@ const SESSION_JOINS = `LEFT JOIN batches b ON b.id = bcp.batch_id
     LEFT JOIN plants p ON p.id = bcp.plant_id
     LEFT JOIN sfg_stages s ON s.id = bcp.sfg_stage_id
     LEFT JOIN users op ON op.id = bcp.operator_id
-    LEFT JOIN otdr_devices od ON od.id = bcp.otdr_device_id`;
+    LEFT JOIN otdr_devices od ON od.id = bcp.otdr_device_id
+    LEFT JOIN users vu ON vu.id = bcp.verified_by_id`;
 
 const READING_FROM = `FROM fiber_test_event_readings r
     INNER JOIN fiber_test_events e ON e.id = r.event_id
@@ -756,6 +758,10 @@ export class ReportsService {
                 operator_name: bcp.operator ? personName(bcp.operator.first_name, bcp.operator.last_name) : null,
                 otdr_device_name: bcp.otdr_device?.device_name ?? null,
                 otdr_serial_number: bcp.otdr_device?.serial_number ?? null,
+                verified_by_name: bcp.verified_by
+                    ? personName(bcp.verified_by.first_name, bcp.verified_by.last_name)
+                    : null,
+                verified_at: bcp.verified_at,
             },
             physical_params: physical
                 ? {
@@ -858,6 +864,11 @@ export class ReportsService {
                     ? personName(r.operator_first_name, r.operator_last_name)
                     : null,
             otdr_device_name: (r.otdr_device_name as string | null) ?? null,
+            verified_by_name:
+                r.verified_by_first_name || r.verified_by_last_name
+                    ? personName(r.verified_by_first_name, r.verified_by_last_name)
+                    : null,
+            verified_at: (r.verified_at as Date | null) ?? null,
         };
     }
 

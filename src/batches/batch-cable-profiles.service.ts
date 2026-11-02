@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BatchCableProfile, BatchCableProfileStatus } from './entities/batch-cable-profile.entity';
@@ -73,6 +73,18 @@ export class BatchCableProfilesService {
 
         const existing = await this.findExistingBySessionKeys(dto);
         if (existing) {
+            // Fiber type isn't a session key: the tester may correct it on the same session.
+            if (dto.fiber_type && existing.fiber_type !== dto.fiber_type) {
+                await this.batchCableProfileRepository.update(existing.id, { fiber_type: dto.fiber_type });
+                await this.auditService.logAudit({
+                    user_id: actorId,
+                    action: AuditAction.UPDATE,
+                    entity_name: 'batch_cable_profiles',
+                    entity_id: existing.id,
+                    old_values: { fiber_type: existing.fiber_type },
+                    new_values: { fiber_type: dto.fiber_type },
+                });
+            }
             return this.findOne(existing.id);
         }
 
@@ -221,6 +233,36 @@ export class BatchCableProfilesService {
             entity_id: id,
             old_values: oldValues as unknown as Record<string, unknown>,
             new_values: dto as unknown as Record<string, unknown>,
+        });
+        return this.findOne(id);
+    }
+
+    /**
+     * Signs off (or withdraws the sign-off of) a session's test report. Admins may verify any
+     * session; plant supervisors only sessions of their own plant.
+     */
+    async setVerified(id: number, verified: boolean, actor: User | null): Promise<BatchCableProfile> {
+        const role = actor?.userRole?.identifier;
+        if (!actor || (role !== UserRoleIdentifier.IT_ADMIN && role !== UserRoleIdentifier.PLANT_SUPERVISOR)) {
+            throw new ForbiddenException('Only an admin or plant supervisor can verify batch sessions');
+        }
+        const row = await this.findOne(id);
+        if (role === UserRoleIdentifier.PLANT_SUPERVISOR && row.plant?.id !== actor.plant?.id) {
+            throw new ForbiddenException('Plant supervisors can only verify sessions of their own plant');
+        }
+
+        const oldValues = { verified_by_id: row.verified_by?.id ?? null, verified_at: row.verified_at };
+        row.verified_by = verified ? ({ id: actor.id } as User) : null;
+        row.verified_at = verified ? new Date() : null;
+        row.modified_by = { id: actor.id } as User;
+        await this.batchCableProfileRepository.save(row);
+        await this.auditService.logAudit({
+            user_id: actor.id,
+            action: AuditAction.UPDATE,
+            entity_name: 'batch_cable_profiles',
+            entity_id: id,
+            old_values: oldValues,
+            new_values: { verified_by_id: verified ? actor.id : null, verified_at: row.verified_at },
         });
         return this.findOne(id);
     }

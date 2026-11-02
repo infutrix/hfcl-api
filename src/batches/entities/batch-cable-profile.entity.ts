@@ -99,6 +99,15 @@ export class BatchCableProfile {
     })
     status: BatchCableProfileStatus;
 
+    /** Admin / plant supervisor who signed off the session's test report; null = not verified. */
+    @Index()
+    @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
+    @JoinColumn({ name: 'verified_by_id' })
+    verified_by: User | null;
+
+    @Column({ name: 'verified_at', type: 'datetime', nullable: true, default: null })
+    verified_at: Date | null;
+
     @Column({ type: 'boolean', default: false })
     deleted: boolean;
 

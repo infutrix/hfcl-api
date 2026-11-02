@@ -81,6 +81,32 @@ export class BatchCableProfilesController {
         return this.batchCableProfilesService.update(id, dto, user?.id);
     }
 
+    @Post(':id/verify')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({
+        summary: 'Verify a batch session',
+        description: 'Admin: any session. Plant supervisor: sessions of their own plant. Records who verified it and when.',
+    })
+    @ApiParam({ name: 'id', type: Number, description: 'Numeric ID' })
+    @ApiResponse({ status: 200, description: 'Verified.', type: BatchCableProfile })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @ApiResponse({ status: 403, description: 'Not an admin or plant supervisor of this plant.' })
+    @ApiResponse({ status: 404, description: 'Not found.' })
+    async verify(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User | null): Promise<BatchCableProfile> {
+        return this.batchCableProfilesService.setVerified(id, true, user);
+    }
+
+    @Delete(':id/verify')
+    @ApiOperation({ summary: 'Withdraw the verification of a batch session' })
+    @ApiParam({ name: 'id', type: Number, description: 'Numeric ID' })
+    @ApiResponse({ status: 200, description: 'Verification removed.', type: BatchCableProfile })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @ApiResponse({ status: 403, description: 'Not an admin or plant supervisor of this plant.' })
+    @ApiResponse({ status: 404, description: 'Not found.' })
+    async unverify(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User | null): Promise<BatchCableProfile> {
+        return this.batchCableProfilesService.setVerified(id, false, user);
+    }
+
     @Delete(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: 'Soft-delete a batch cable profile' })
